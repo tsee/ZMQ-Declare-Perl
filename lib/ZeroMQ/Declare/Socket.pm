@@ -5,15 +5,16 @@ use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
-use ZeroMQ::Declare qw(:namespaces);
+use ZeroMQ::Declare::Constants qw(:namespaces);
 
 use Class::XSAccessor getters => {_app=> 'app'};
-use Class::XSAccessor getters => [qw(name)];
+use Class::XSAccessor getters => [qw(name type)];
 
 sub new {
   my $class = shift;
   my $self = bless {
     name => undef,
+    type => undef,
     binds => [],
     connects => [],
     @_,
@@ -26,30 +27,36 @@ sub new {
     croak("Need App object for a new " . __PACKAGE__);
   }
 
-  if (not defined $self->name) {
-    croak("A " . __PACKAGE__ . " object needs a 'name'");
+  for my $attr (qw(name type)) {
+    if (not defined $self->$attr) {
+      croak("A " . __PACKAGE__ . " object needs a '$attr'");
+    }
   }
 
   return $self;
 }
 
 sub _add_endpoint {
-  my ($self, $addr, $target, $rest) = @_;
+  my ($self, $ep, $target, $rest) = @_;
 
   my $schema = $self->_app->_schema;
-  my $endpoint = $schema->endpoint($addr);
-  if (not $endpoint) {
-    $endpoint = $schema->add_endpoint($addr, @$rest);
-  }
+  my $endpoint = $ep;
+  $endpoint = $schema->endpoint($ep) if not ref $endpoint;
+  $endpoint = $schema->add_endpoint($ep, @$rest) if not $endpoint;
 
   push @$target, $endpoint;
 }
 
+sub add_connect_endpoint {
+  my $self = shift;
+  my $address_or_e = shift;
+  return $self->_add_endpoint($address_or_e, $self->{connects}, \@_);
+}
+
 sub add_bind_endpoint {
   my $self = shift;
-  my $address = shift;
-
-  return $self->_add_endpoint($address, $self->{binds}, \@_);
+  my $address_or_e = shift;
+  return $self->_add_endpoint($address_or_e, $self->{binds}, \@_);
 }
 
 1;

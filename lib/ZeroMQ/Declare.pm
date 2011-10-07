@@ -8,11 +8,19 @@ our $VERSION = '0.01';
 
 use ZeroMQ ();
 
-use ZeroMQ::Declare::Constants;
+use ZeroMQ::Declare::Constants qw(:all);
 use ZeroMQ::Declare::Schema;
 use ZeroMQ::Declare::App;
 use ZeroMQ::Declare::Socket;
 use ZeroMQ::Declare::Endpoint;
+
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = @ZeroMQ::Declare::Constants::EXPORT_OK;
+our %EXPORT_TAGS = (
+  'all' => \@EXPORT_OK,
+  'namespaces' => $ZeroMQ::Declare::Constants::EXPORT_TAGS{namespaces},
+);
 
 1;
 __END__

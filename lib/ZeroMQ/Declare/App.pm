@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
-use ZeroMQ::Declare qw(:namespaces);
+use ZeroMQ::Declare::Constants qw(:namespaces);
 
 use Class::XSAccessor getters => {_schema => 'schema'};
 use Class::XSAccessor getters => [qw(name)];

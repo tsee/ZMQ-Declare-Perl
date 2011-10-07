@@ -6,20 +6,22 @@ use warnings;
 
 our $VERSION = '0.01';
 
-use constant({
-  map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket Schema Endpoint)
-});
-
-use Exporter;
-our (@ISA, @EXPORT_OK, %EXPORT_TAGS);
+our %Namespaces;
 BEGIN {
-  @ISA = qw(Exporter);
-  @EXPORT_OK = qw(App Socket Schema Endpoint);
-  %EXPORT_TAGS = (
-    'namespaces' => [qw(App Socket Schema Endpoint)],
-    'all' => \@EXPORT_OK,
+  %Namespaces = (
+    map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket Schema Endpoint)
   );
+  eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
 }
+use constant \%Namespaces;
+
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = (keys %Namespaces);
+our %EXPORT_TAGS = (
+  'namespaces' => [keys %Namespaces],
+  'all' => \@EXPORT_OK,
+);
 
 1;
 __END__
