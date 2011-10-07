@@ -36,6 +36,18 @@ sub new {
   return $self;
 }
 
+sub endpoints {
+  return @{$_[0]->{binds}}, @{$_[0]->{connects}};
+}
+
+sub bind_endpoints {
+  return @{$_[0]->{binds}};
+}
+
+sub connect_endpoints {
+  return @{$_[0]->{connects}};
+}
+
 sub _add_endpoint {
   my ($self, $ep, $target, $rest) = @_;
 
