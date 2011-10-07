@@ -15,7 +15,7 @@ use warnings;
 
 use ZeroMQ qw/:all/;
 use lib 'lib';
-use lib 'examples/lib';
+use lib 'examples/weather/lib';
 use WeatherApp;
 use Time::HiRes qw(sleep);
 

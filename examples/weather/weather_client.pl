@@ -15,7 +15,7 @@ use warnings;
 
 use ZeroMQ qw/:all/;
 use lib 'lib';
-use lib 'examples/lib';
+use lib 'examples/weather/lib';
 use WeatherApp;
 
 print "Collecting updates from weather server...\n";
