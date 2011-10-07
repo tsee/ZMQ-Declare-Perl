@@ -1,26 +1,36 @@
-package ZeroMQ::Declare;
+package ZeroMQ::Declare::Constants;
 
 use 5.008001;
 use strict;
 use warnings;
 
-use ZeroMQ::Declare::Constants;
-use ZeroMQ::Declare::Schema;
-use ZeroMQ::Declare::App;
-use ZeroMQ::Declare::Socket;
-
 our $VERSION = '0.01';
+
+use constant({
+  map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket)
+});
+
+use Exporter;
+our (@ISA, @EXPORT_OK, %EXPORT_TAGS);
+BEGIN {
+  @ISA = qw(Exporter);
+  @EXPORT_OK = qw(App Socket);
+  %EXPORT_TAGS = (
+    'namespaces' => [qw(App Socket)],
+    'all' => \@EXPORT_OK,
+  );
+}
 
 1;
 __END__
 
 =head1 NAME
 
-ZeroMQ::Declare - Declare ZeroMQ infrastructure
+ZeroMQ::Declare::Constants - Constants you can import
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare;
+  use ZeroMQ::Declare::Constants ...;
 
 =head1 DESCRIPTION
 
