@@ -7,13 +7,15 @@ use Carp qw(croak);
 
 use ZeroMQ::Declare qw(:namespaces);
 
-use Class::XSAccessor {
-  getters => {_app=> 'app'}
-};
+use Class::XSAccessor getters => {_app=> 'app'};
+use Class::XSAccessor getters => [qw(name)];
 
 sub new {
   my $class = shift;
   my $self = bless {
+    name => undef,
+    binds => [],
+    connects => [],
     @_,
   } => $class;
 
@@ -24,7 +26,30 @@ sub new {
     croak("Need App object for a new " . __PACKAGE__);
   }
 
+  if (not defined $self->name) {
+    croak("A " . __PACKAGE__ . " object needs a 'name'");
+  }
+
   return $self;
+}
+
+sub _add_endpoint {
+  my ($self, $addr, $target, $rest) = @_;
+
+  my $schema = $self->_app->_schema;
+  my $endpoint = $schema->endpoint($addr);
+  if (not $endpoint) {
+    $endpoint = $schema->add_endpoint($addr, @$rest);
+  }
+
+  push @$target, $endpoint;
+}
+
+sub add_bind_endpoint {
+  my $self = shift;
+  my $address = shift;
+
+  return $self->_add_endpoint($address, $self->{binds}, \@_);
 }
 
 1;

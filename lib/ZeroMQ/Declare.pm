@@ -4,12 +4,15 @@ use 5.008001;
 use strict;
 use warnings;
 
+our $VERSION = '0.01';
+
+use ZeroMQ ();
+
 use ZeroMQ::Declare::Constants;
 use ZeroMQ::Declare::Schema;
 use ZeroMQ::Declare::App;
 use ZeroMQ::Declare::Socket;
-
-our $VERSION = '0.01';
+use ZeroMQ::Declare::Endpoint;
 
 1;
 __END__

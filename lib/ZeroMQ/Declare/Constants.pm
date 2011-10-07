@@ -7,16 +7,16 @@ use warnings;
 our $VERSION = '0.01';
 
 use constant({
-  map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket)
+  map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket Schema Endpoint)
 });
 
 use Exporter;
 our (@ISA, @EXPORT_OK, %EXPORT_TAGS);
 BEGIN {
   @ISA = qw(Exporter);
-  @EXPORT_OK = qw(App Socket);
+  @EXPORT_OK = qw(App Socket Schema Endpoint);
   %EXPORT_TAGS = (
-    'namespaces' => [qw(App Socket)],
+    'namespaces' => [qw(App Socket Schema Endpoint)],
     'all' => \@EXPORT_OK,
   );
 }

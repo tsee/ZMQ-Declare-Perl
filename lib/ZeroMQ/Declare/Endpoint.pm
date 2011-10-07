@@ -1,4 +1,4 @@
-package ZeroMQ::Declare::App;
+package ZeroMQ::Declare::Endpoint;
 use 5.008001;
 use strict;
 use warnings;
@@ -8,13 +8,12 @@ use Carp qw(croak);
 use ZeroMQ::Declare qw(:namespaces);
 
 use Class::XSAccessor getters => {_schema => 'schema'};
-use Class::XSAccessor getters => [qw(name)];
+use Class::XSAccessor getters => [qw(address)];
 
 sub new {
   my $class = shift;
   my $self = bless {
-    name => undef,
-    sockets => {},
+    address => undef,
     @_,
   } => $class;
 
@@ -24,34 +23,13 @@ sub new {
   else {
     croak("Need schema object for a new " . __PACKAGE__);
   }
-  if (not defined $self->name) {
-    croak("A " . __PACKAGE__ . " object needs a 'name'");
+  for my $attr (qw(address)) {
+    if (not defined $self->$attr) {
+      croak("A " . __PACKAGE__ . " object needs a '$attr'");
+    }
   }
 
   return $self;
-}
-
-sub socket {
-  my $self = shift;
-  my $objs = $self->{sockets};
-  return exists($objs->{$_[0]}) ? $objs->{$_[0]} : undef;
-}
-
-sub add_socket {
-  my $self = shift;
-  my $name = shift;
-  my %param = @_;
-  $param{name} = $name;
-
-  my $objs = $self->{sockets};
-  if (exists $objs->{$name}) {
-    croak("Cannot add duplicate socket of name '$name' to a " . __PACKAGE__);
-  }
-
-  my $obj = Socket->new(%param, app => $self);
-  $objs->{$name} = $obj;
-
-  return $obj;
 }
 
 1;
@@ -59,7 +37,7 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare::App - A ZeroMQ::Declare App object
+ZeroMQ::Declare::Endpoint - A ZeroMQ::Declare Endpoint object
 
 =head1 SYNOPSIS
 
