@@ -5,6 +5,7 @@ use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
+use ZeroMQ qw(:all);
 use ZeroMQ::Declare::Constants qw(:namespaces);
 
 use Class::XSAccessor getters => {_schema => 'schema'};
@@ -53,6 +54,30 @@ sub add_socket {
 
   return $obj;
 }
+
+sub run {
+  my $self = shift;
+  my %args = @_;
+
+  my $cxt = $args{cxt} || ZeroMQ::Context->new();
+  my $runloop = $args{runloop} or die "Need a 'runloop'";
+
+  my $socks = $self->{sockets};
+
+  my %zmq_socks;
+  foreach my $sock (values %$socks) {
+    my $s = $zmq_socks{$sock->name} = $cxt->socket($sock->type);
+    $s->bind($_->address) for $sock->bind_endpoints;
+  }
+
+  foreach my $sock (values %$socks) {
+    my $s = $zmq_socks{$sock->name};
+    $s->connect($_->address) for $sock->connect_endpoints;
+  }
+
+  $runloop->(context => $cxt, sockets => \%zmq_socks);
+}
+
 
 1;
 __END__
