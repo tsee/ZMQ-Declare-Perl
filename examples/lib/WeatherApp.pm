@@ -12,8 +12,8 @@ my $sub_app = $schema->add_app('weather_client');
 my $pub_sock = $pub_app->add_socket('pub_socket', type => ZMQ_PUB);
 my $sub_sock = $sub_app->add_socket('sub_socket', type => ZMQ_SUB);
 
-my $endpoint = $pub_sock->add_bind_endpoint('tcp://127.0.0.0:9977');
-$sub_sock->add_connect_endpoint($endpoint);
+$pub_sock->add_bind_endpoint('tcp://*:5556');
+$sub_sock->add_connect_endpoint('tcp://127.0.0.1:5556');
 
 sub new {
   my $class = shift;

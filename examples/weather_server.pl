@@ -1,3 +1,15 @@
+=pod
+
+Based on the "Weather update server" from the 'zguide' at http://zguide.zeromq.org/pl:wuserver
+
+Binds PUB socket to tcp://*:5556
+
+Publishes random weather updates
+
+Original author: Alexander D'Archangel (darksuji) <darksuji(at)gmail(dot)com>
+
+=cut
+
 use strict;
 use warnings;
 
@@ -5,6 +17,7 @@ use ZeroMQ qw/:all/;
 use lib 'lib';
 use lib 'examples/lib';
 use WeatherApp;
+use Time::HiRes qw(sleep);
 
 sub within {
   my ($upper) = @_;
@@ -25,7 +38,9 @@ $srv->run('weather_server' => sub {
 
     # Send message to all subscribers
     my $update = sprintf('%05d %d %d', $zipcode, $temperature, $relhumidity);
+    #print "Sending update $update\n";
     $publisher->send($update);
+    #sleep 0.1;
   }
 });
 
