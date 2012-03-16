@@ -1,80 +1,45 @@
 package ZMQ::Declare::Socket;
 use 5.008001;
-use strict;
-use warnings;
+use Moose;
+
 use Scalar::Util ();
-use Carp qw(croak);
+use Carp ();
 
 use ZMQ::Declare::Constants qw(:namespaces);
 
-use Class::XSAccessor getters => {_app=> 'app'};
-use Class::XSAccessor getters => [qw(name type)];
+has 'name' => ( # entirely optional
+  is => 'rw',
+  isa => 'String',
+);
 
-sub new {
-  my $class = shift;
-  my $self = bless {
-    name => undef,
-    type => undef,
-    binds => [],
-    connects => [],
-    @_,
-  } => $class;
+has 'connect_type' => (
+  is => 'rw',
+  isa => 'String', # FIXME define proper type
+  required => 1,
+);
 
-  if (defined $self->{app}) {
-    Scalar::Util::weaken($self->{app});
-  }
-  else {
-    croak("Need Component object for a new " . __PACKAGE__);
-  }
+has 'type' => (
+  is => 'rw',
+  isa => 'String', # FIXME define proper type
+  required => 1,
+);
 
-  for my $attr (qw(name type)) {
-    if (not defined $self->$attr) {
-      croak("A " . __PACKAGE__ . " object needs a '$attr'");
-    }
-  }
+has 'endpoint' => (
+  is => 'rw',
+  isa => 'String', # FIXME define proper class or type
+  required => 1,
+);
 
-  return $self;
-}
+has 'component' => (
+  is => 'ro',
+  isa => 'ZMQ::Declare::Component',
+  required => 1,
+  weak_ref => 1,
+);
 
-sub endpoints {
-  return @{$_[0]->{binds}}, @{$_[0]->{connects}};
-}
+no Moose;
+__PACKAGE__->meta->make_immutable;
 
-sub bind_endpoints {
-  return @{$_[0]->{binds}};
-}
-
-sub connect_endpoints {
-  return @{$_[0]->{connects}};
-}
-
-sub _add_endpoint {
-  my ($self, $ep, $target, $rest) = @_;
-
-  my $schema = $self->_app->_schema;
-  my $endpoint = $ep;
-  $endpoint = $schema->endpoint($endpoint) if not ref $endpoint;
-  $endpoint = $schema->add_endpoint($ep, @$rest) if not $endpoint;
-
-  push @$target, $endpoint;
-  Scalar::Util::weaken($target->[-1]);
-
-  return $endpoint;
-}
-
-sub add_connect_endpoint {
-  my $self = shift;
-  my $address_or_e = shift;
-  return $self->_add_endpoint($address_or_e, $self->{connects}, \@_);
-}
-
-sub add_bind_endpoint {
-  my $self = shift;
-  my $address_or_e = shift;
-  return $self->_add_endpoint($address_or_e, $self->{binds}, \@_);
-}
-
-1;
 __END__
 
 =head1 NAME

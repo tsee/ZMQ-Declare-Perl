@@ -1,70 +1,40 @@
 package ZMQ::Declare::Schema;
 use 5.008001;
-use strict;
-use warnings;
+use Moose;
+
 use Scalar::Util ();
-use Carp qw(croak);
+use Carp ();
 
 use ZMQ::Declare::Constants qw(:namespaces);
+require ZMQ::Declare;
 
-sub new {
-  my $class = shift;
-  my $self = bless {
-    apps => {},
-    endpoints => {},
-    @_,
-  } => $class;
+has 'name' => (
+  is => 'rw',
+  isa => 'String',
+  required => 1,
+);
 
-  return $self;
-}
+has 'components' => (
+  is => 'ro',
+  isa => 'HashRef[ZMQ::Declare::Component]',
+  default => sub { {} },
+);
 
-sub endpoint {
-  my $self = shift;
-  my $objs = $self->{endpoints};
-  return exists($objs->{$_[0]}) ? $objs->{$_[0]} : undef;
-}
-
-sub app {
-  my $self = shift;
-  my $objs = $self->{apps};
-  return exists($objs->{$_[0]}) ? $objs->{$_[0]} : undef;
-}
-
-sub add_app {
+sub get_component {
   my $self = shift;
   my $name = shift;
-  my %param = @_;
-  $param{name} = $name;
-
-  my $objs = $self->{apps};
-  if (exists $objs->{$name}) {
-    croak("Cannot add duplicate Component of name '$name' to a " . __PACKAGE__);
-  }
-
-  my $obj = Component->new(%param, schema => $self);
-  $objs->{$name} = $obj;
-
-  return $obj;
+  return $self->components->{$name} || croak("Unknown Component '$name'");
 }
 
-sub add_endpoint {
+sub add_component {
   my $self = shift;
-  my $addr = shift;
-  my %param = @_;
-  $param{address} = $addr;
-
-  my $objs = $self->{endpoints};
-  if (exists $objs->{$addr}) {
-    croak("Cannot add duplicate Endpoint with address '$addr' to a " . __PACKAGE__);
-  }
-
-  my $obj = Endpoint->new(%param, schema => $self);
-  $objs->{$addr} = $obj;
-
-  return $obj;
+  my $comp = shift;
+  $self->components->{$comp->name} = $comp;
 }
 
-1;
+no Moose;
+__PACKAGE__->meta->make_immutable;
+
 __END__
 
 =head1 NAME

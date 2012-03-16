@@ -1,41 +1,37 @@
 package ZMQ::Declare::Component;
 use 5.008001;
-use strict;
-use warnings;
+use Moose;
+
 use Scalar::Util ();
-use Carp qw(croak);
+use Carp ();
 
-use ZMQ qw(:all);
+#use ZeroMQ qw(:all);
 use ZMQ::Declare::Constants qw(:namespaces);
+require ZMQ::Declare;
 
-use Class::XSAccessor getters => {_schema => 'schema'};
-use Class::XSAccessor getters => [qw(name)];
+has 'name' => (
+  is => 'rw',
+  isa => 'String',
+  required => 1,
+);
 
-sub new {
-  my $class = shift;
-  my $self = bless {
-    name => undef,
-    sockets => {},
-    @_,
-  } => $class;
+has 'sockets' => (
+  is => 'ro',
+  isa => 'ArrayRef[ZMQ::Declare::Socket]',
+  default => sub {[]},
+);
 
-  if (defined $self->{schema}) {
-    Scalar::Util::weaken($self->{schema});
-  }
-  else {
-    croak("Need schema object for a new " . __PACKAGE__);
-  }
-  if (not defined $self->name) {
-    croak("A " . __PACKAGE__ . " object needs a 'name'");
-  }
+has 'schema' => (
+  is => 'ro',
+  isa => 'ZMQ::Declare::Schema',
+  required => 1,
+  weak_ref => 1,
+);
 
-  return $self;
-}
-
-sub socket {
+sub get_socket {
   my $self = shift;
-  my $objs = $self->{sockets};
-  return exists($objs->{$_[0]}) ? $objs->{$_[0]} : undef;
+  my $name = shift;
+  return $self->sockets->{$name} || croak("Unknown Socket '$name'");
 }
 
 sub add_socket {
@@ -55,31 +51,9 @@ sub add_socket {
   return $obj;
 }
 
-sub run {
-  my $self = shift;
-  my %args = @_;
+no Moose;
+__PACKAGE__->meta->make_immutable;
 
-  my $cxt = $args{cxt} || ZMQ::Context->new();
-  my $runloop = $args{runloop} or die "Need a 'runloop'";
-
-  my $socks = $self->{sockets};
-
-  my %zmq_socks;
-  foreach my $sock (values %$socks) {
-    my $s = $zmq_socks{$sock->name} = $cxt->socket($sock->type);
-    $s->bind($_->address) for $sock->bind_endpoints;
-  }
-
-  foreach my $sock (values %$socks) {
-    my $s = $zmq_socks{$sock->name};
-    $s->connect($_->address) for $sock->connect_endpoints;
-  }
-
-  $runloop->(context => $cxt, sockets => \%zmq_socks);
-}
-
-
-1;
 __END__
 
 =head1 NAME
