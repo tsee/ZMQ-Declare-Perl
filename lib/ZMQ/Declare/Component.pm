@@ -1,12 +1,12 @@
-package ZeroMQ::Declare::App;
+package ZMQ::Declare::Component;
 use 5.008001;
 use strict;
 use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
-use ZeroMQ qw(:all);
-use ZeroMQ::Declare::Constants qw(:namespaces);
+use ZMQ qw(:all);
+use ZMQ::Declare::Constants qw(:namespaces);
 
 use Class::XSAccessor getters => {_schema => 'schema'};
 use Class::XSAccessor getters => [qw(name)];
@@ -59,7 +59,7 @@ sub run {
   my $self = shift;
   my %args = @_;
 
-  my $cxt = $args{cxt} || ZeroMQ::Context->new();
+  my $cxt = $args{cxt} || ZMQ::Context->new();
   my $runloop = $args{runloop} or die "Need a 'runloop'";
 
   my $socks = $self->{sockets};
@@ -84,11 +84,11 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare::App - A ZeroMQ::Declare App object
+ZMQ::Declare::Component - A ZMQ::Declare Component object
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare;
+  use ZMQ::Declare;
 
 =head1 DESCRIPTION
 
@@ -102,7 +102,7 @@ Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,

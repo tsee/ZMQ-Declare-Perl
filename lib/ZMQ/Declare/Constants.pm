@@ -1,4 +1,4 @@
-package ZeroMQ::Declare::Constants;
+package ZMQ::Declare::Constants;
 
 use 5.008001;
 use strict;
@@ -9,7 +9,7 @@ our $VERSION = '0.01';
 our %Namespaces;
 BEGIN {
   %Namespaces = (
-    map {$_ => "ZeroMQ::Declare::$_"} qw(App Socket Schema Endpoint)
+    map {$_ => "ZMQ::Declare::$_"} qw(Component Socket Schema Endpoint)
   );
   eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
 }
@@ -28,25 +28,25 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare::Constants - Constants you can import
+ZMQ::Declare::Constants - Constants you can import
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare::Constants ...;
+  use ZMQ::Declare::Constants ...;
 
 =head1 DESCRIPTION
 
 =head1 SEE ALSO
 
-L<ZeroMQ>
+L<ZMQ>
 
 =head1 AUTHOR
 
-Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
+Steffen Mueller E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,

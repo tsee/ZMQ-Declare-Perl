@@ -1,11 +1,11 @@
-package ZeroMQ::Declare::Socket;
+package ZMQ::Declare::Socket;
 use 5.008001;
 use strict;
 use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
-use ZeroMQ::Declare::Constants qw(:namespaces);
+use ZMQ::Declare::Constants qw(:namespaces);
 
 use Class::XSAccessor getters => {_app=> 'app'};
 use Class::XSAccessor getters => [qw(name type)];
@@ -24,7 +24,7 @@ sub new {
     Scalar::Util::weaken($self->{app});
   }
   else {
-    croak("Need App object for a new " . __PACKAGE__);
+    croak("Need Component object for a new " . __PACKAGE__);
   }
 
   for my $attr (qw(name type)) {
@@ -53,10 +53,13 @@ sub _add_endpoint {
 
   my $schema = $self->_app->_schema;
   my $endpoint = $ep;
-  $endpoint = $schema->endpoint($ep) if not ref $endpoint;
+  $endpoint = $schema->endpoint($endpoint) if not ref $endpoint;
   $endpoint = $schema->add_endpoint($ep, @$rest) if not $endpoint;
 
   push @$target, $endpoint;
+  Scalar::Util::weaken($target->[-1]);
+
+  return $endpoint;
 }
 
 sub add_connect_endpoint {
@@ -76,11 +79,11 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare::Socket - A ZeroMQ::Declare Socket object
+ZMQ::Declare::Socket - A ZMQ::Declare Socket object
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare;
+  use ZMQ::Declare;
 
 =head1 DESCRIPTION
 
@@ -90,11 +93,11 @@ L<ZeroMQ>
 
 =head1 AUTHOR
 
-Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
+Steffen Mueller E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,

@@ -1,11 +1,11 @@
-package ZeroMQ::Declare::Schema;
+package ZMQ::Declare::Schema;
 use 5.008001;
 use strict;
 use warnings;
 use Scalar::Util ();
 use Carp qw(croak);
 
-use ZeroMQ::Declare::Constants qw(:namespaces);
+use ZMQ::Declare::Constants qw(:namespaces);
 
 sub new {
   my $class = shift;
@@ -38,10 +38,10 @@ sub add_app {
 
   my $objs = $self->{apps};
   if (exists $objs->{$name}) {
-    croak("Cannot add duplicate App of name '$name' to a " . __PACKAGE__);
+    croak("Cannot add duplicate Component of name '$name' to a " . __PACKAGE__);
   }
 
-  my $obj = App->new(%param, schema => $self);
+  my $obj = Component->new(%param, schema => $self);
   $objs->{$name} = $obj;
 
   return $obj;
@@ -69,11 +69,11 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare::Schema - A ZeroMQ::Declare Schema
+ZMQ::Declare::Schema - A ZMQ::Declare Schema
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare;
+  use ZMQ::Declare;
 
 =head1 DESCRIPTION
 
@@ -83,11 +83,11 @@ L<ZeroMQ>
 
 =head1 AUTHOR
 
-Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
+Steffen Mueller E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,

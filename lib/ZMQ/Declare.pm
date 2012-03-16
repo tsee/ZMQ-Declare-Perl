@@ -1,4 +1,4 @@
-package ZeroMQ::Declare;
+package ZMQ::Declare;
 
 use 5.008001;
 use strict;
@@ -8,18 +8,19 @@ our $VERSION = '0.01';
 
 use ZeroMQ ();
 
-use ZeroMQ::Declare::Constants qw(:all);
-use ZeroMQ::Declare::Schema;
-use ZeroMQ::Declare::App;
-use ZeroMQ::Declare::Socket;
-use ZeroMQ::Declare::Endpoint;
+use ZMQ::Declare::Constants qw(:all);
+use ZMQ::Declare::Schema;
+use ZMQ::Declare::Component;
+use ZMQ::Declare::Socket;
+use ZMQ::Declare::Endpoint;
+use ZMQ::Declare::Spec;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = @ZeroMQ::Declare::Constants::EXPORT_OK;
+our @EXPORT_OK = @ZMQ::Declare::Constants::EXPORT_OK;
 our %EXPORT_TAGS = (
   'all' => \@EXPORT_OK,
-  'namespaces' => $ZeroMQ::Declare::Constants::EXPORT_TAGS{namespaces},
+  'namespaces' => $ZMQ::Declare::Constants::EXPORT_TAGS{namespaces},
 );
 
 1;
@@ -27,11 +28,11 @@ __END__
 
 =head1 NAME
 
-ZeroMQ::Declare - Declare ZeroMQ infrastructure
+ZMQ::Declare - Declare 0MQ infrastructure
 
 =head1 SYNOPSIS
 
-  use ZeroMQ::Declare;
+  use ZMQ::Declare;
 
 =head1 DESCRIPTION
 
@@ -41,11 +42,11 @@ L<ZeroMQ>
 
 =head1 AUTHOR
 
-Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
+Steffen Mueller E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,
