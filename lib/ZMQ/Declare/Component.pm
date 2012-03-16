@@ -28,29 +28,6 @@ has 'schema' => (
   weak_ref => 1,
 );
 
-sub get_socket {
-  my $self = shift;
-  my $name = shift;
-  return $self->sockets->{$name} || croak("Unknown Socket '$name'");
-}
-
-sub add_socket {
-  my $self = shift;
-  my $name = shift;
-  my %param = @_;
-  $param{name} = $name;
-
-  my $objs = $self->{sockets};
-  if (exists $objs->{$name}) {
-    croak("Cannot add duplicate socket of name '$name' to a " . __PACKAGE__);
-  }
-
-  my $obj = Socket->new(%param, app => $self);
-  $objs->{$name} = $obj;
-
-  return $obj;
-}
-
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
