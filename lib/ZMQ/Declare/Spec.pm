@@ -62,7 +62,7 @@ sub _build_components {
     or not ref($components_spec) eq 'HASH';
 
   foreach my $comp_name (keys %$components_spec) {
-    my $comp = $self->_build_component($schema, $comp_name, $components_spec);
+    my $comp = $self->_build_component($schema, $comp_name, $components_spec->{$comp_name});
     $schema->add_component($comp);
   }
 }
@@ -75,15 +75,14 @@ sub _build_component {
   );
 
   foreach my $sock_spec (@{$spec->{sockets} || []}) {
-    $comp->add_socket( $self->_build_socket($comp, $sock_spec) );
+    push @{$comp->sockets}, $self->_build_socket($comp, $sock_spec);
   }
 
   return $comp;
 }
 
 sub _build_socket {
-  my ($self, $comp, $spec) = shift;
-  my $sock_spec = shift;
+  my ($self, $comp, $sock_spec) = @_;
   my $sock = Socket->new(%$sock_spec, component => $comp);
 }
 
