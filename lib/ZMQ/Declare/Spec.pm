@@ -46,14 +46,17 @@ sub create_schema {
   my $schema_def = $tree->{schemas}{$name};
   Carp::croak("Unknown schema '$name'") if not defined $schema_def;
 
-  return Schema->new(name => $schema_def->{name});
+  my $schema = Schema->new(name => $name);
+  $self->_build_components($schema, $schema_def);
+  return $schema;
 }
 
 sub _build_components {
   my $self = shift;
   my $schema = shift;
+  my $spec = shift;
 
-  my $components_spec = $schema->{components};
+  my $components_spec = $spec->{components};
   Carp::croak("Schema needs {components}")
     if not defined $components_spec
     or not ref($components_spec) eq 'HASH';

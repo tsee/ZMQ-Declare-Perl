@@ -13,4 +13,7 @@ ok(-f $testspec)
 my $spec = ZMQ::Declare::Spec->new(tree => $testspec);
 isa_ok($spec, "ZMQ::Declare::Spec");
 
+my $schema = $spec->create_schema("weather");
+isa_ok($schema, "ZMQ::Declare::Schema");
+
 done_testing();
