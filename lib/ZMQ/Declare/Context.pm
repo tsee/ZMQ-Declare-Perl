@@ -3,6 +3,7 @@ use 5.008001;
 use Moose;
 
 use Carp ();
+use ZeroMQ ();
 
 use ZMQ::Declare::Constants qw(:namespaces);
 
@@ -19,6 +20,11 @@ has 'component' => (
   required => 1,
   weak_ref => 1,
 );
+
+sub make_context {
+  my $self = shift;
+  return ZeroMQ::Context->new($self->io_threads);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
