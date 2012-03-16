@@ -9,24 +9,24 @@ use ZMQ::Declare::Constants qw(:namespaces);
 
 has 'name' => ( # entirely optional
   is => 'rw',
-  isa => 'String',
+  isa => 'Str',
 );
 
 has 'connect_type' => (
   is => 'rw',
-  isa => 'String', # FIXME define proper type
+  isa => 'Str', # FIXME define proper type
   required => 1,
 );
 
 has 'type' => (
   is => 'rw',
-  isa => 'String', # FIXME define proper type
+  isa => 'Str', # FIXME define proper type
   required => 1,
 );
 
 has 'endpoint' => (
   is => 'rw',
-  isa => 'String', # FIXME define proper class or type
+  isa => 'Str', # FIXME define proper class or type
   required => 1,
 );
 

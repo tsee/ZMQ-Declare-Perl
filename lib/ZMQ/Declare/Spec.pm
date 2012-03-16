@@ -12,11 +12,23 @@ use JSON ();
 require ZMQ::Declare;
 
 subtype 'SpecTree'
-  => as 'Hash';
+  => as 'HashRef';
 
 coerce 'SpecTree'
-  => from 'String'
-    => via sub { JSON::decode_json($_) };
+  => from 'FileHandle'
+    => via { JSON::decode_json(do {local $/; <$_>}) },
+  => from 'ScalarRef[Str]'
+    => via { JSON::decode_json($$_) },
+  => from 'Str'
+    => via {
+        my $filename = $_;
+        local $/;
+        use autodie;
+        open my $fh, "<", $filename;
+        my $outhash = JSON::decode_json(<$fh>);
+        close $fh;
+        return $outhash;
+    };
 
 has 'tree' => (
   is => 'rw',
@@ -34,8 +46,7 @@ sub create_schema {
   my $schema_def = $tree->{schemas}{$name};
   Carp::croak("Unknown schema '$name'") if not defined $schema_def;
 
-  my $schema = Schema->new(name => $schema_def->{name});
-
+  return Schema->new(name => $schema_def->{name});
 }
 
 sub _build_components {

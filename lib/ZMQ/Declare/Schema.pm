@@ -10,7 +10,7 @@ require ZMQ::Declare;
 
 has 'name' => (
   is => 'rw',
-  isa => 'String',
+  isa => 'Str',
   required => 1,
 );
 
