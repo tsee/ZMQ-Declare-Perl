@@ -14,6 +14,7 @@ use ZMQ::Declare::Component;
 use ZMQ::Declare::Socket;
 use ZMQ::Declare::Endpoint;
 use ZMQ::Declare::Spec;
+use ZMQ::Declare::Context;
 
 require Exporter;
 our @ISA = qw(Exporter);

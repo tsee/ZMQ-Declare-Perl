@@ -5,7 +5,7 @@ use Moose;
 use Scalar::Util ();
 use Carp ();
 
-#use ZeroMQ qw(:all);
+use ZeroMQ qw(:all);
 use ZMQ::Declare::Constants qw(:namespaces);
 require ZMQ::Declare;
 
@@ -27,6 +27,17 @@ has 'schema' => (
   required => 1,
   weak_ref => 1,
 );
+
+has 'context' => (
+  is => 'rw',
+  isa => 'ZMQ::Declare::Context',
+);
+
+sub run {
+  my $self = shift;
+
+  my $cxt = ZeroMQ::Context->new();
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

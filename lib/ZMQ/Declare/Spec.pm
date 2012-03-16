@@ -73,6 +73,7 @@ sub _build_component {
     name => $name,
     schema => $schema,
   );
+  $comp->context( $self->_build_context($comp, $spec->{context}) );
 
   foreach my $sock_spec (@{$spec->{sockets} || []}) {
     push @{$comp->sockets}, $self->_build_socket($comp, $sock_spec);
@@ -81,9 +82,14 @@ sub _build_component {
   return $comp;
 }
 
+sub _build_context {
+  my ($self, $comp, $cxt_spec) = @_;
+  return Context->new(%$cxt_spec, component => $comp);
+}
+
 sub _build_socket {
   my ($self, $comp, $sock_spec) = @_;
-  my $sock = Socket->new(%$sock_spec, component => $comp);
+  return Socket->new(%$sock_spec, component => $comp);
 }
 
 no Moose;

@@ -40,6 +40,10 @@ foreach my $schema_name (qw(weather_client weather_server)) {
   is($sock->connect_type, $schema_name eq 'weather_client' ? "connect" : "bind");
   is($sock->type, $schema_name eq 'weather_client' ? "ZMQ_SUB" : "ZMQ_PUB");
   is($sock->endpoint, $schema_name eq 'weather_client' ? "tcp://localhost:5556" : "tcp://*:5556");
+
+  my $cxt = $comp->context;
+  isa_ok($cxt, "ZMQ::Declare::Context");
+  is($cxt->io_threads, 1);
 }
 
 done_testing();

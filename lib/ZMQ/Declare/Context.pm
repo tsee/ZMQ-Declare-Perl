@@ -1,4 +1,4 @@
-package ZMQ::Declare::Socket;
+package ZMQ::Declare::Context;
 use 5.008001;
 use Moose;
 
@@ -6,27 +6,11 @@ use Carp ();
 
 use ZMQ::Declare::Constants qw(:namespaces);
 
-has 'name' => ( # entirely optional
+has 'io_threads' => (
   is => 'rw',
-  isa => 'Str',
-);
-
-has 'connect_type' => (
-  is => 'rw',
-  isa => 'Str', # FIXME define proper type
+  isa => 'Int',
   required => 1,
-);
-
-has 'type' => (
-  is => 'rw',
-  isa => 'Str', # FIXME define proper type
-  required => 1,
-);
-
-has 'endpoint' => (
-  is => 'rw',
-  isa => 'Str', # FIXME define proper class or type
-  required => 1,
+  default => 1,
 );
 
 has 'component' => (

@@ -3,6 +3,9 @@
     "weather":{
       "components":{
         "weather_client":{
+          "context":{
+            "io_threads":1
+          },
           "sockets":[
             {
               "connect_type":"connect",
