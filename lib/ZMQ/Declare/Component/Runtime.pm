@@ -4,10 +4,10 @@ use Moose;
 
 use Scalar::Util ();
 use Carp ();
-
 use ZeroMQ qw(:all);
+
+use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:namespaces);
-require ZMQ::Declare;
 
 has 'name' => (
   is => 'rw',

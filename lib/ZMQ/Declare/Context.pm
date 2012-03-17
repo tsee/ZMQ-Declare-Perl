@@ -5,6 +5,7 @@ use Moose;
 use Carp ();
 use ZeroMQ ();
 
+use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:namespaces);
 
 has 'io_threads' => (

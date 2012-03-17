@@ -8,14 +8,14 @@ our $VERSION = '0.01';
 
 use ZeroMQ ();
 
-use ZMQ::Declare::Constants qw(:all);
-use ZMQ::Declare::Types;
-use ZMQ::Declare::Schema;
-use ZMQ::Declare::Component;
-use ZMQ::Declare::Socket;
-use ZMQ::Declare::Endpoint;
-use ZMQ::Declare::Spec;
-use ZMQ::Declare::Context;
+require ZMQ::Declare::Constants;
+require ZMQ::Declare::Types;
+require ZMQ::Declare::Schema;
+require ZMQ::Declare::Component;
+require ZMQ::Declare::Socket;
+require ZMQ::Declare::Endpoint;
+require ZMQ::Declare::Spec;
+require ZMQ::Declare::Context;
 
 require Exporter;
 our @ISA = qw(Exporter);

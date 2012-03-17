@@ -4,6 +4,7 @@ use Moose;
 
 use Carp ();
 
+use ZMQ::Declare;
 use ZMQ::Declare::Types;
 use ZMQ::Declare::Constants qw(:namespaces);
 

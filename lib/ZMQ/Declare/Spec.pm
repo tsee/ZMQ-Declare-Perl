@@ -3,12 +3,11 @@ use 5.008001;
 use Moose;
 our $VERSION = '0.01';
 
+use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:all);
 use ZMQ::Declare::Types;
 use Carp ();
 use Clone ();
-
-require ZMQ::Declare;
 
 has 'tree' => (
   is => 'rw',
