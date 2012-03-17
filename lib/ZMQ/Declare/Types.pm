@@ -57,6 +57,8 @@ sub sock_type_to_number {
   return $socket_types{shift()};
 }
 
+enum 'ZMQDeclareSocketConnectType' => [qw(connect bind)];
+
 1;
 __END__
 

@@ -4,6 +4,7 @@ use Moose;
 
 use Carp ();
 
+use ZMQ::Declare::Types;
 use ZMQ::Declare::Constants qw(:namespaces);
 
 has 'name' => ( # entirely optional
@@ -13,7 +14,7 @@ has 'name' => ( # entirely optional
 
 has 'connect_type' => (
   is => 'rw',
-  isa => 'Str', # FIXME define proper type
+  isa => 'ZMQDeclareSocketConnectType',
   required => 1,
 );
 
