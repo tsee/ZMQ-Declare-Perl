@@ -19,9 +19,9 @@ has 'validator' => (
   default => sub {ZMQ::Declare::ZDCF::Validator->new},
 );
 
-has 'tree' => ( # FIXME Want coercion from string via the validator. Does that pose a problem for order-of-execution?
+has 'tree' => (
   is => 'rw',
-  isa => 'HashRef',
+  required => 1,
 );
 
 has 'encoder' => (
@@ -29,6 +29,21 @@ has 'encoder' => (
   isa => 'ZMQ::Declare::ZDCF::Encoder',
   default => sub {ZMQ::Declare::ZDCF::Encoder::JSON->new},
 );
+
+sub BUILD {
+  my $self = shift;
+  my $tree = $self->tree;
+  if (not ref($tree) eq 'HASH') {
+    $tree = $self->encoder->decode($tree);
+
+    Carp::croak("Failed to decode input ZDCF")
+      if not defined $tree;
+    Carp::croak("Failed to validate decoded ZDCF")
+      if not $self->validator->validate($tree);
+
+    $self->tree($tree);
+  }
+}
 
 # FIXME ditch notion of "schema"
 
