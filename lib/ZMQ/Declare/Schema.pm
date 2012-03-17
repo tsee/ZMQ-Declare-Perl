@@ -20,7 +20,7 @@ has 'components' => (
   default => sub { {} },
 );
 
-has 'options' => (
+has 'extra_options' => (
   is => 'rw',
   isa => 'HashRef',
   default => sub { {} },

@@ -17,7 +17,7 @@ my $schema = $spec->create_schema("weather");
 isa_ok($schema, "ZMQ::Declare::Schema");
 is($schema->name, 'weather');
 
-is_deeply($schema->options, {foo => 'bar'});
+is_deeply($schema->extra_options, {foo => 'bar'});
 
 my $components = $schema->components;
 is(scalar(keys %$components), 2, 'Number of available components');

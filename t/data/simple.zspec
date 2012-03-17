@@ -1,7 +1,7 @@
 {
   "schemas":{
     "weather":{
-      "options":{
+      "extra_options":{
         "foo":"bar"
       },
       "components":{
