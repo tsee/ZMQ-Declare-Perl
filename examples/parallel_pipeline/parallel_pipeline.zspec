@@ -1,0 +1,39 @@
+{"schemas":{
+"parallel_pipeline":{ "components":{
+
+  "ventilator":{
+    "sockets":[{
+      "name":         "sender",
+      "type":         "ZMQ_PUSH",
+      "connect_type": "bind",
+      "endpoint":     "tcp://*:5557"
+    }]
+  },
+
+  "worker":{
+    "sockets":[
+      {
+        "name":         "input",
+        "type":         "ZMQ_PULL",
+        "connect_type": "connect",
+        "endpoint":     "tcp://localhost:5557"
+      },
+      {
+        "name":         "output",
+        "type":         "ZMQ_PUSH",
+        "connect_type": "connect",
+        "endpoint":     "tcp://localhost:5558"
+      }
+    ]
+  },
+
+  "sink":{
+    "sockets":[{
+      "name":         "receiver",
+      "type":         "ZMQ_PULL",
+      "connect_type": "bind",
+      "endpoint":     "tcp://*:5558"
+    }]
+  }
+
+}}}}
