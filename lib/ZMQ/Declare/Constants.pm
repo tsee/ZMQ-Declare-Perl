@@ -13,7 +13,6 @@ BEGIN {
   );
   eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
 }
-use constant \%Namespaces;
 
 require Exporter;
 our @ISA = qw(Exporter);
