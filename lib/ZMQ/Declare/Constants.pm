@@ -9,7 +9,7 @@ our $VERSION = '0.01';
 our %Namespaces;
 BEGIN {
   %Namespaces = (
-    map {$_ => "ZMQ::Declare::$_"} qw(Component Socket Schema Endpoint Context)
+    map {$_ => "ZMQ::Declare::$_"} qw(Component Socket Schema Endpoint Context Spec)
   );
   eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
 }
