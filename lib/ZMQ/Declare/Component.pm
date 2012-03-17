@@ -52,6 +52,7 @@ sub run {
 
   my $rt = $self->_build_runtime;
 
+  $callback->($rt);
 }
 
 sub _build_runtime {

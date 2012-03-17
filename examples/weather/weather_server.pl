@@ -14,9 +14,7 @@ use strict;
 use warnings;
 
 use ZeroMQ qw/:all/;
-use lib 'lib';
-use lib 'examples/weather/lib';
-use WeatherApp;
+use ZMQ::Declare qw/:all/;
 use Time::HiRes qw(sleep);
 
 sub within {
@@ -25,22 +23,29 @@ sub within {
 }
 
 # Prepare our context and publisher
-my $srv = WeatherApp->new;
-$srv->run('weather_server' => sub {
-  my %args = @_;
-  my $publisher = $args{sockets}{pub_socket};
-  
-  while (1) {
-    # Get values that will fool the boss
-    my $zipcode     = within(100_000);
-    my $temperature = within(215) - 80;
-    my $relhumidity = within(50) + 10;
+my $schema = Spec->new(tree => 'weather.zspec')->create_schema("weather");
+my $component = $schema->get_component('server');
 
-    # Send message to all subscribers
-    my $update = sprintf('%05d %d %d', $zipcode, $temperature, $relhumidity);
-    #print "Sending update $update\n";
-    $publisher->send($update);
-    #sleep 0.1;
+$| = 1;
+print "Serving...\n";
+
+$component->run(
+  main => sub {
+    my ($runtime) = @_;
+    my $publisher = $runtime->get_socket_by_name("publisher");
+    
+    while (1) {
+      # Get values that will fool the boss
+      my $zipcode     = within(100_000);
+      my $temperature = within(215) - 80;
+      my $relhumidity = within(50) + 10;
+
+      # Send message to all subscribers
+      my $update = sprintf('%05d %d %d', $zipcode, $temperature, $relhumidity);
+      #print "Sending update $update\n";
+      $publisher->send($update);
+      #sleep 0.001;
+    }
   }
-});
+);
 
