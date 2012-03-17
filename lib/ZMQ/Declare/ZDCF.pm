@@ -8,6 +8,8 @@ use ZMQ::Declare::ZDCF::Validator;
 use ZMQ::Declare::ZDCF::Encoder;
 use ZMQ::Declare::ZDCF::Encoder::JSON;
 
+use ZeroMQ qw(:all);
+
 use ZMQ::Declare::Constants qw(:all);
 use ZMQ::Declare::Types;
 use Carp ();
@@ -45,49 +47,31 @@ sub BUILD {
   }
 }
 
-# FIXME ditch notion of "schema"
-
-sub create_schema {
+sub device {
   my $self = shift;
   my $name = shift;
 
-  my $tree = $self->tree;
+  my $cxt = $self->_build_context;
 
-  my $schema_def = $tree->{schemas}{$name};
-  Carp::croak("Unknown schema '$name'") if not defined $schema_def;
-
-  my $schema = Schema->new(name => $name);
-  $schema->extra_options( Clone::clone($schema_def->{extra_options} || {}) );
-
-  $self->_build_components($schema, $schema_def);
+  my $device = $self->_build_device($cxt, $name);
 
   return $schema;
 }
 
-sub _build_components {
-  my $self = shift;
-  my $schema = shift;
-  my $spec = shift;
+sub _build_device {
+  my ($self, $cxt, $name) = @_;
 
-  my $components_spec = $spec->{components};
-  Carp::croak("Schema needs {components}")
-    if not defined $components_spec
-    or not ref($components_spec) eq 'HASH';
+  my $tree = $self->tree;
+  Carp::croak("Invalid device '$name'")
+    if $name eq 'context' or not exists $tree->{$name};
 
-  foreach my $comp_name (keys %$components_spec) {
-    my $comp = $self->_build_component($schema, $comp_name, $components_spec->{$comp_name});
-    $schema->add_component($comp);
-  }
-}
-
-sub _build_component {
-  my ($self, $schema, $name, $spec) = @_;
-  my $comp = Component->new(
+  my $dev_spec = $tree->{$name};
+  return ZMQ::Declare::Device->new(
     name => $name,
-    schema => $schema,
+    context => $cxt,
+    typename => '', # FIXME
   );
-  $comp->context( $self->_build_context($comp, $spec->{context}) );
-
+# FIXME
   foreach my $sock_spec (@{$spec->{sockets} || []}) {
     push @{$comp->sockets}, $self->_build_socket($comp, $sock_spec);
   }
@@ -96,20 +80,12 @@ sub _build_component {
 }
 
 sub _build_context {
-  my ($self, $comp, $cxt_spec) = @_;
-  return Context->new(%$cxt_spec, component => $comp);
-}
-
-sub _build_socket {
-  my ($self, $comp, $sock_spec) = @_;
-  my %sspec = %$sock_spec;
-  my $options = delete $sspec{options};
-
-  return Socket->new(
-    %sspec,
-    component => $comp,
-    options => ($options ? Clone::clone($options) : {}),
-  );
+  my ($self) = @_;
+  my $tree = $self->tree;
+  my $context_str = $tree->{context};
+  my $iothreads = defined $context_str ? $context_str->{iothreads} : 1;
+  my $cxt = ZeroMQ::Context->new($iothreads);
+  return $cxt;
 }
 
 no Moose;
@@ -125,11 +101,12 @@ ZMQ::Declare::ZDCF - Object representing a 0MQ-declare specification
 
   use ZMQ::Declare;
 
-  my $spec = ZMQ::Declare::ZDCF->new(src => $json_spec);
-  my $dev = $spec->get_device("server");
-  $dev->implement(sub {
-    ...
-  });
+  my $zdcf = ZMQ::Declare::ZDCF->new(tree => $some_json_zdcf);
+  # or:
+  my $zdcf = ZMQ::Declare::ZDCF->new(
+    encoder => ZMQ::Declare::ZDCF::Encoder::YourFormat->new,
+    tree => $your_format_string.
+  );
 
 =head1 DESCRIPTION
 

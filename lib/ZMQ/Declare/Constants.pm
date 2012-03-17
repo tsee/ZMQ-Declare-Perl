@@ -9,7 +9,7 @@ our $VERSION = '0.01';
 our %Namespaces;
 BEGIN {
   %Namespaces = (
-    map {$_ => "ZMQ::Declare::$_"} qw(Component Socket Schema Endpoint Context Spec)
+    map {$_ => "ZMQ::Declare::$_"} qw(Device ZDCF)
   );
   eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
 }
@@ -36,6 +36,8 @@ ZMQ::Declare::Constants - Constants you can import
 =head1 DESCRIPTION
 
 =head1 SEE ALSO
+
+L<ZMQ::Declare>
 
 L<ZeroMQ>
 

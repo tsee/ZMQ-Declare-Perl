@@ -1,4 +1,4 @@
-package ZMQ::Declare::Component;
+package ZMQ::Declare::Device;
 use 5.008001;
 use Moose;
 
@@ -10,7 +10,7 @@ use ZeroMQ qw(:all);
 
 use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:namespaces);
-use ZMQ::Declare::Component::Runtime;
+use ZMQ::Declare::Device::Runtime;
 
 has 'name' => (
   is => 'rw',
@@ -18,17 +18,15 @@ has 'name' => (
   required => 1,
 );
 
-has 'sockets' => (
+has 'typename' => (
   is => 'ro',
-  isa => 'ArrayRef[ZMQ::Declare::Socket]',
-  default => sub {[]},
+  isa => 'Str',
+  required => 1,
 );
 
-has 'schema' => (
-  is => 'ro',
-  isa => 'ZMQ::Declare::Schema',
-  required => 1,
-  weak_ref => 1,
+has 'implementation' => ( # FIXME nonono, the type of device has an implementation!
+  is => 'rw',
+  isa => '...',
 );
 
 has 'context' => (
@@ -36,21 +34,18 @@ has 'context' => (
   isa => 'ZMQ::Declare::Context',
 );
 
-sub get_socket_by_name {
-  my $self = shift;
-  my $name = shift;
-  foreach my $socket (@{$self->sockets}) {
-    my $n = $socket->name;
-    return $socket if defined $n and $n eq $name;
-  }
-  return();
-}
+has 'sockets' => (
+  is => 'ro',
+  isa => 'HashRef[ZMQ::Declare::Socket]',
+  default => sub {{}},
+);
+
 
 sub run {
   my $self = shift;
   my %args = @_;
   my $callback = $args{main}
-    or Carp::croak("Need 'main' CODE reference to run ZMQ::Declare::Component '" . $self->name . "'");
+    or Carp::croak("Need 'main' CODE reference to run ZMQ::Declare::Device '" . $self->name . "'");
 
   if ($args{nforks} and $args{nforks} > 1) {
     $self->_fork_runtimes(\%args);
@@ -97,8 +92,8 @@ sub make_runtime {
   # Note: Do not store non-weak refs to the runtime in the component.
   #       That wouldn't make a lot of sense anyway, since at least
   #       conceptually, one could have N runtime objects for the same
-  #       Component.
-  my $rt = ZMQ::Declare::Component::Runtime->new(
+  #       Device.
+  my $rt = ZMQ::Declare::Device::Runtime->new(
     name => $self->name,
     component => $self,
   );
@@ -124,7 +119,7 @@ __END__
 
 =head1 NAME
 
-ZMQ::Declare::Component - A ZMQ::Declare Component object
+ZMQ::Declare::Device - A ZMQ::Declare Device object
 
 =head1 SYNOPSIS
 

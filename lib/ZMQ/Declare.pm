@@ -14,7 +14,7 @@ require ZMQ::Declare::Types;
 require ZMQ::Declare::ZDCF;
 
 require ZMQ::Declare::Schema;
-require ZMQ::Declare::Component;
+require ZMQ::Declare::Device;
 require ZMQ::Declare::Socket;
 require ZMQ::Declare::Context;
 

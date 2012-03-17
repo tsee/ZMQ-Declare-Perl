@@ -9,25 +9,6 @@ use Moose::Util::TypeConstraints;
 use JSON ();
 use ZeroMQ::Constants qw(:all);
 
-subtype 'ZMQDeclareUntypedSpecTree'
-  => as 'HashRef';
-
-coerce 'ZMQDeclareUntypedSpecTree'
-  => from 'FileHandle'
-    => via { JSON::decode_json(do {local $/; <$_>}) },
-  => from 'ScalarRef[Str]'
-    => via { JSON::decode_json($$_) },
-  => from 'Str'
-    => via {
-        my $filename = $_;
-        local $/;
-        use autodie;
-        open my $fh, "<", $filename;
-        my $outhash = JSON::decode_json(<$fh>);
-        close $fh;
-        return $outhash;
-    };
-
 # TODO complete
 my %socket_types = (
   ZMQ_PUB => ZMQ_PUB,
