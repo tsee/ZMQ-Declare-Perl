@@ -28,10 +28,28 @@ has 'sockets' => (
   default => sub {[]},
 );
 
+has '_socket_names' => (
+  is => 'ro',
+  isa => 'ArrayRef[Str]',
+  default => sub {[]},
+);
+
 has 'context' => (
   is => 'rw',
   isa => 'ZeroMQ::Context',
 );
+
+sub get_socket_by_name {
+  my $self = shift;
+  my $name = shift;
+  my $names = $self->_socket_names;
+  foreach my $i (0 .. $#$names ) {
+    my $n = $names->[$i];
+    return $self->sockets->[$i] if defined $n and $n eq $name;
+  }
+  return();
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

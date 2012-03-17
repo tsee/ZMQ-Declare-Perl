@@ -34,6 +34,16 @@ has 'context' => (
   isa => 'ZMQ::Declare::Context',
 );
 
+sub get_socket_by_name {
+  my $self = shift;
+  my $name = shift;
+  foreach my $socket (@{$self->sockets}) {
+    my $n = $socket->name;
+    return $socket if defined $n and $n eq $name;
+  }
+  return();
+}
+
 sub run {
   my $self = shift;
   my %args = @_;
@@ -58,10 +68,13 @@ sub _build_runtime {
   $rt->context($cxt);
 
   my @sockets;
+  my @socket_names;
   foreach my $d_socket (@{$self->sockets}) {
     push @sockets, $d_socket->setup_socket($cxt);
+    push @socket_names, $d_socket->name; # even if not defined
   }
   push @{ $rt->sockets }, @sockets;
+  push @{ $rt->_socket_names}, @socket_names;
 
   return $rt;
 }
