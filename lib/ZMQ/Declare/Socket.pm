@@ -37,7 +37,11 @@ has 'component' => (
   weak_ref => 1,
 );
 
-# TODO sockopts
+#has 'options' => (
+#  is => 'ro',
+#  isa => 'HashRef',
+#  default => sub { +{} },
+#);
 
 sub numeric_socket_type {
   my $self = shift;
@@ -46,7 +50,10 @@ sub numeric_socket_type {
 
 sub setup_socket {
   my ($self, $cxt) = @_;
-  $cxt->socket( $self->numeric_socket_type );
+  my $socket = $cxt->socket( $self->numeric_socket_type );
+  my $conn_type = $self->connect_type;
+  $socket->$conn_type($self->endpoint);
+  return $socket;
 }
 
 no Moose;
