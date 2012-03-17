@@ -2,6 +2,8 @@ package ZMQ::Declare::Component;
 use 5.008001;
 use Moose;
 
+use POSIX ":sys_wait_h";
+use Time::HiRes qw(sleep);
 use Scalar::Util ();
 use Carp ();
 use ZeroMQ qw(:all);
@@ -50,9 +52,44 @@ sub run {
   my $callback = $args{main}
     or Carp::croak("Need 'main' CODE reference to run ZMQ::Declare::Component '" . $self->name . "'");
 
-  my $rt = $self->make_runtime;
+  if ($args{nforks} and $args{nforks} > 1) {
+    $self->_fork_runtimes(\%args);
+  }
+  else {
+    $callback->($self->make_runtime);
+  }
 
-  $callback->($rt);
+  return ();
+}
+
+sub _fork_runtimes {
+  my ($self, $args) = @_;
+
+  my $nforks = $args->{nforks};
+
+  my @pids;
+  FORK: foreach my $i (1..$nforks) {
+    my $pid = fork();
+    if ($pid) { push @pids, $pid; }
+    else { @pids = (); last FORK; }
+  }
+
+  if (@pids) { # parent
+    my %pids = map {$_ => 1} @pids;
+    while (keys %pids) {
+      my $kid;
+      do {
+        $kid = waitpid(-1, WNOHANG);
+        delete $pids{$kid} if $kid > 0;
+      } while $kid > 0;
+      sleep(0.1);
+    }
+  }
+  else { # kid
+    $args->{main}->($self->make_runtime);
+    exit(0);
+  }
+  return();
 }
 
 sub make_runtime {
