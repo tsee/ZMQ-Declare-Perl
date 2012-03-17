@@ -21,7 +21,7 @@ has 'component' => (
   weak_ref => 1,
 );
 
-sub make_context {
+sub setup_context {
   my $self = shift;
   return ZeroMQ::Context->new($self->io_threads);
 }

@@ -3,36 +3,15 @@ use 5.008001;
 use Moose;
 our $VERSION = '0.01';
 
-use Moose::Util::TypeConstraints;
-
 use ZMQ::Declare::Constants qw(:all);
+use ZMQ::Declare::Types;
 use Carp ();
-use JSON ();
 
 require ZMQ::Declare;
 
-subtype 'SpecTree'
-  => as 'HashRef';
-
-coerce 'SpecTree'
-  => from 'FileHandle'
-    => via { JSON::decode_json(do {local $/; <$_>}) },
-  => from 'ScalarRef[Str]'
-    => via { JSON::decode_json($$_) },
-  => from 'Str'
-    => via {
-        my $filename = $_;
-        local $/;
-        use autodie;
-        open my $fh, "<", $filename;
-        my $outhash = JSON::decode_json(<$fh>);
-        close $fh;
-        return $outhash;
-    };
-
 has 'tree' => (
   is => 'rw',
-  isa => 'SpecTree',
+  isa => 'ZMQDeclareUntypedSpecTree',
   required => 1,
   coerce => 1,
 );

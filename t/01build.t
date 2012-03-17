@@ -44,6 +44,8 @@ foreach my $schema_name (qw(weather_client weather_server)) {
   my $cxt = $comp->context;
   isa_ok($cxt, "ZMQ::Declare::Context");
   is($cxt->io_threads, 1);
+
+  $comp->run;
 }
 
 done_testing();

@@ -9,6 +9,7 @@ our $VERSION = '0.01';
 use ZeroMQ ();
 
 use ZMQ::Declare::Constants qw(:all);
+use ZMQ::Declare::Types;
 use ZMQ::Declare::Schema;
 use ZMQ::Declare::Component;
 use ZMQ::Declare::Socket;

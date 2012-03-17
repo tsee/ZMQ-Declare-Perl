@@ -19,13 +19,13 @@ has 'connect_type' => (
 
 has 'type' => (
   is => 'rw',
-  isa => 'Str', # FIXME define proper type
+  isa => 'ZMQDeclareSocketType',
   required => 1,
 );
 
 has 'endpoint' => (
   is => 'rw',
-  isa => 'Str', # FIXME define proper class or type
+  isa => 'Str', # FIXME define proper class or type?
   required => 1,
 );
 
@@ -35,6 +35,18 @@ has 'component' => (
   required => 1,
   weak_ref => 1,
 );
+
+# TODO sockopts
+
+sub numeric_socket_type {
+  my $self = shift;
+  return ZMQ::Declare::Types->sock_type_to_number($self->type);
+}
+
+sub setup_socket {
+  my ($self, $cxt) = @_;
+  $cxt->socket( $self->numeric_socket_type );
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -36,7 +36,20 @@ has 'context' => (
 sub run {
   my $self = shift;
 
-  my $cxt = ZeroMQ::Context->new();
+  my @obj = $self->_build_zeromq_objs;
+# TODO implement
+}
+
+sub _build_zeromq_objs {
+  my $self = shift;
+  my $cxt = $self->context->setup_context;
+  
+  my @sockets;
+  foreach my $d_socket (@{$self->sockets}) {
+    push @sockets, $d_socket->setup_socket($cxt);
+  }
+
+  return [$cxt, \@sockets];
 }
 
 no Moose;
