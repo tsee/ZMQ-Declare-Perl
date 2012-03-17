@@ -25,6 +25,8 @@ our %EXPORT_TAGS = (
   'namespaces' => $ZMQ::Declare::Constants::EXPORT_TAGS{namespaces},
 );
 
+ZMQ::Declare::Constants->import(':namespaces');
+
 1;
 __END__
 
