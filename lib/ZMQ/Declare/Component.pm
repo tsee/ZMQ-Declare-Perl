@@ -50,12 +50,12 @@ sub run {
   my $callback = $args{main}
     or Carp::croak("Need 'main' CODE reference to run ZMQ::Declare::Component '" . $self->name . "'");
 
-  my $rt = $self->_build_runtime;
+  my $rt = $self->make_runtime;
 
   $callback->($rt);
 }
 
-sub _build_runtime {
+sub make_runtime {
   my $self = shift;
   # Note: Do not store non-weak refs to the runtime in the component.
   #       That wouldn't make a lot of sense anyway, since at least
