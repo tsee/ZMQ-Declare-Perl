@@ -105,11 +105,11 @@ ZMQ::Declare::Spec - Object representing a 0MQ-declare specification
 
 =head1 SEE ALSO
 
-L<ZMQ>
+L<ZeroMQ>
 
 =head1 AUTHOR
 
-Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
+Steffen Mueller E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
