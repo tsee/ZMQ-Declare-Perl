@@ -1,20 +1,36 @@
-package ZMQ::Declare::Spec;
+package ZMQ::Declare::ZDCF;
 use 5.008001;
 use Moose;
 our $VERSION = '0.01';
 
 use ZMQ::Declare;
+use ZMQ::Declare::ZDCF::Validator;
+use ZMQ::Declare::ZDCF::Encoder;
+use ZMQ::Declare::ZDCF::Encoder::JSON;
+
 use ZMQ::Declare::Constants qw(:all);
 use ZMQ::Declare::Types;
 use Carp ();
 use Clone ();
 
-has 'tree' => (
-  is => 'rw',
-  isa => 'ZMQDeclareUntypedSpecTree',
-  required => 1,
-  coerce => 1,
+has 'validator' => (
+  is => 'ro',
+  isa => 'ZMQ::Declare::ZDCF::Validator',
+  default => sub {ZMQ::Declare::ZDCF::Validator->new},
 );
+
+has 'tree' => ( # FIXME Want coercion from string via the validator. Does that pose a problem for order-of-execution?
+  is => 'rw',
+  isa => 'HashRef',
+);
+
+has 'encoder' => (
+  is => 'rw',
+  isa => 'ZMQ::Declare::ZDCF::Encoder',
+  default => sub {ZMQ::Declare::ZDCF::Encoder::JSON->new},
+);
+
+# FIXME ditch notion of "schema"
 
 sub create_schema {
   my $self = shift;
@@ -88,22 +104,23 @@ __END__
 
 =head1 NAME
 
-ZMQ::Declare::Spec - Object representing a 0MQ-declare specification
+ZMQ::Declare::ZDCF - Object representing a 0MQ-declare specification
 
 =head1 SYNOPSIS
 
   use ZMQ::Declare;
 
-  my $spec = ZMQ::Declare::Spec->new(src => $json_spec);
-  my $schema = $spec->create_schema("weather_info");
-  my $comp = $spec->get_component("server");
-  $comp->implement(sub {
+  my $spec = ZMQ::Declare::ZDCF->new(src => $json_spec);
+  my $dev = $spec->get_device("server");
+  $dev->implement(sub {
     ...
   });
 
 =head1 DESCRIPTION
 
 =head1 SEE ALSO
+
+The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
 
 L<ZeroMQ>
 
