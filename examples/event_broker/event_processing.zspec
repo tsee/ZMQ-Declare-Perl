@@ -1,0 +1,48 @@
+{"schemas":{
+"event_processing":{ "components":{
+
+  "client":{
+    "sockets":[{
+      "name":         "event_dispatch",
+      "type":         "ZMQ_PUB",
+      "connect_type": "connect",
+      "endpoint":     "tcp://localhost:5999",
+      "options":{
+        "ZMQ_HWM":10000
+      }
+    }]
+  },
+
+  "broker":{
+    "sockets":[
+      {
+        "name":         "event_listener",
+        "type":         "ZMQ_SUB",
+        "connect_type": "bind",
+        "endpoint":     "tcp://*:5999",
+        "options":{
+          "ZMQ_SUBSCRIBE":""
+        }
+      },
+      {
+        "name":         "work_distributor",
+        "type":         "ZMQ_PUSH",
+        "connect_type": "bind",
+        "endpoint":     "tcp://*:5998",
+        "options":{
+          "ZMQ_HWM":500000
+        }
+      }
+    ]
+  },
+
+  "worker":{
+    "sockets":[{
+      "name":         "work_queue",
+      "type":         "ZMQ_PULL",
+      "connect_type": "connect",
+      "endpoint":     "tcp://localhost:5998"
+    }]
+  }
+
+}}}}
