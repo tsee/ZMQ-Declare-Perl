@@ -20,6 +20,12 @@ has 'components' => (
   default => sub { {} },
 );
 
+has 'options' => (
+  is => 'rw',
+  isa => 'HashRef',
+  default => sub { {} },
+);
+
 sub get_component {
   my $self = shift;
   my $name = shift;

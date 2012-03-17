@@ -1,6 +1,9 @@
 {
   "schemas":{
     "weather":{
+      "options":{
+        "foo":"bar"
+      },
       "components":{
         "weather_client":{
           "context":{

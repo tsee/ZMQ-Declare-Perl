@@ -26,7 +26,10 @@ sub create_schema {
   Carp::croak("Unknown schema '$name'") if not defined $schema_def;
 
   my $schema = Schema->new(name => $name);
+  $schema->options( Clone::clone($schema_def->{options} || {}) );
+
   $self->_build_components($schema, $schema_def);
+
   return $schema;
 }
 
