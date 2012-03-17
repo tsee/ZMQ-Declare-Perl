@@ -6,6 +6,7 @@ our $VERSION = '0.01';
 use ZMQ::Declare::Constants qw(:all);
 use ZMQ::Declare::Types;
 use Carp ();
+use Clone ();
 
 require ZMQ::Declare;
 
@@ -68,7 +69,14 @@ sub _build_context {
 
 sub _build_socket {
   my ($self, $comp, $sock_spec) = @_;
-  return Socket->new(%$sock_spec, component => $comp);
+  my %sspec = %$sock_spec;
+  my $options = delete $sspec{options};
+
+  return Socket->new(
+    %sspec,
+    component => $comp,
+    options => ($options ? Clone::clone($options) : {}),
+  );
 }
 
 no Moose;

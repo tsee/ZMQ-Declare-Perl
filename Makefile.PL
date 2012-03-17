@@ -16,6 +16,7 @@ WriteMakefile(
       'Test::More' => '0.88',
       'autodie' => '0',
       'Data::Dumper' => '0',
+      'Clone' => '0',
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/ZMQ/Declare.pm', # retrieve abstract from module

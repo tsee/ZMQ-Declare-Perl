@@ -37,21 +37,37 @@ has 'component' => (
   weak_ref => 1,
 );
 
-#has 'options' => (
-#  is => 'ro',
-#  isa => 'HashRef',
-#  default => sub { +{} },
-#);
+# FIXME option name/value validation?
+has 'options' => (
+  is => 'ro',
+  isa => 'ZMQDeclareSettableSocketOptionsHashRefType', # hashref with only valid keys
+  default => sub { +{} },
+);
 
 sub numeric_socket_type {
   my $self = shift;
   return ZMQ::Declare::Types->sock_type_to_number($self->type);
 }
 
+sub numeric_settable_sockopt {
+  my $self = shift;
+  my $optname = shift;
+  return ZMQ::Declare::Types->settable_sockopt_type_to_number($optname);
+}
+
 sub setup_socket {
   my ($self, $cxt) = @_;
   my $socket = $cxt->socket( $self->numeric_socket_type );
   my $conn_type = $self->connect_type;
+
+  # set all the provided socket options
+  my $opts = $self->options;
+  foreach my $optname (sort keys %$opts) {
+    my $optval = $opts->{$optname};
+    my $optname_num = $self->numeric_settable_sockopt($optname);
+    $socket->setsockopt($optname_num, $optval);
+  }
+
   $socket->$conn_type($self->endpoint);
   return $socket;
 }

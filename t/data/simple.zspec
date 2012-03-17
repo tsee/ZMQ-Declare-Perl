@@ -10,7 +10,10 @@
             {
               "connect_type":"connect",
               "type":"ZMQ_SUB",
-              "endpoint":"tcp://localhost:5556"
+              "endpoint":"inproc://weather_endpoint",
+              "options":{
+                "ZMQ_HWM":0
+              }
             }
           ]
         },
@@ -19,7 +22,10 @@
             {
               "connect_type":"bind",
               "type":"ZMQ_PUB",
-              "endpoint":"tcp://*:5556"
+              "endpoint":"inproc://weather_endpoint",
+              "options":{
+                "ZMQ_HWM":100
+              }
             }
           ]
         }

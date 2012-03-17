@@ -39,14 +39,15 @@ foreach my $schema_name (qw(weather_client weather_server)) {
   ok(not defined($sock->name));
   is($sock->connect_type, $schema_name eq 'weather_client' ? "connect" : "bind");
   is($sock->type, $schema_name eq 'weather_client' ? "ZMQ_SUB" : "ZMQ_PUB");
-  is($sock->endpoint, $schema_name eq 'weather_client' ? "tcp://localhost:5556" : "tcp://*:5556");
+  is($sock->endpoint, "inproc://weather_endpoint");
 
   my $cxt = $comp->context;
   isa_ok($cxt, "ZMQ::Declare::Context");
   is($cxt->io_threads, 1);
-
-  $comp->run(main => sub {});
-  pass();
 }
+
+my $srv_comp = $schema->get_component("weather_server");
+$srv_comp->run(main => sub {});
+pass();
 
 done_testing();
