@@ -37,14 +37,14 @@ I<Not implemented in base class.>
 Expects the data structure to encode as first argument. The data structure
 is assumed to be a valid ZDCF tree.
 
-Returns the ZDCF encoded as a string.
+Returns a reference to a scalar containing the ZDCF encoded as a string.
 
 =head2 decode
 
 I<Not implemented in base class.>
 
-Expects a string to decode as first argument. Decodes the string
-and returns a ZDCF tree (unvalidated).
+Expects a reference to a scalar containing the string to decode.
+Decodes the string and returns a ZDCF tree (unvalidated).
 
 =head1 SEE ALSO
 

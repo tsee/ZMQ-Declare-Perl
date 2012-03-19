@@ -38,7 +38,8 @@ my $socket_type_schema = {
   type => '//any',
   of => [
     map {
-      { type => '//str', value => $_ }
+      { type => '//str', value => $_ },
+      { type => '//str', value => uc($_) }
     } qw(sub pub req rep xreq xrep push pull pair)
   ]
 };

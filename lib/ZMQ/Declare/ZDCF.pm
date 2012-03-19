@@ -32,19 +32,45 @@ has 'encoder' => (
   default => sub {ZMQ::Declare::ZDCF::Encoder::JSON->new},
 );
 
+has '_runtime_context' => (
+  is => 'rw',
+  isa => 'ZeroMQ::Context',
+  weak_ref => 1,
+);
+
 sub BUILD {
   my $self = shift;
   my $tree = $self->tree;
+
+  # needs decoding
   if (not ref($tree) eq 'HASH') {
-    $tree = $self->encoder->decode($tree);
+    my $sref;
+    if (ref($tree) eq 'SCALAR') { # content as scalar ref
+      $sref = $tree;
+    }
+    elsif (not ref $tree) { # slurp from file
+      use autodie;
+      open my $fh, "<", $tree;
+      local $/;
+      my $zdcf_content = <$fh>;
+      $sref = \$zdcf_content;
+    }
+
+    $tree = $self->encoder->decode($sref);
 
     Carp::croak("Failed to decode input ZDCF")
       if not defined $tree;
-    Carp::croak("Failed to validate decoded ZDCF")
-      if not $self->validator->validate($tree);
-
     $self->tree($tree);
   }
+
+  Carp::croak("Failed to validate decoded ZDCF")
+    if not $self->validator->validate($tree);
+}
+
+sub device_names {
+  my $self = shift;
+
+  return grep $_ ne 'context', keys %{ $self->tree || {} };
 }
 
 sub device {
@@ -74,12 +100,17 @@ sub _build_device {
 }
 
 # runtime context
-sub make_context {
+sub get_context {
   my ($self) = @_;
+  my $cxt = $self->_runtime_context;
+  return $cxt if defined $cxt;
+
   my $tree = $self->tree;
   my $context_str = $tree->{context};
   my $iothreads = defined $context_str ? $context_str->{iothreads} : 1;
-  my $cxt = ZeroMQ::Context->new($iothreads);
+  $cxt = ZeroMQ::Context->new($iothreads);
+  $self->_runtime_context($cxt);
+
   return $cxt;
 }
 
@@ -118,8 +149,8 @@ sub _setup_socket {
   # FIXME figure out whether some of these options *must* be set after the connects
   my $opt = $sock_spec->{option} || {};
   foreach my $opt_name (keys %$opt) {
-    my $opt_num = ZMQ::Declare::Types->zdcf_settable_sockopt_typee_to_number($opt_name);
-    $sock->set_sockopt($opt_num, $opt->{$opt_name});
+    my $opt_num = ZMQ::Declare::Types->zdcf_settable_sockopt_type_to_number($opt_name);
+    $sock->setsockopt($opt_num, $opt->{$opt_name});
   }
 
   return $sock;

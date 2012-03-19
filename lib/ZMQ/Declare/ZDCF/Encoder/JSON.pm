@@ -13,12 +13,12 @@ $json->pretty(1);
 
 sub encode {
   my $self = shift;
-  return $json->encode(shift);
+  return \($json->encode(shift));
 }
 
 sub decode {
   my $self = shift;
-  return $json->decode(shift);
+  return $json->decode(${shift()});
 }
 
 no Moose;

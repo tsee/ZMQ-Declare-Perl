@@ -93,17 +93,10 @@ sub make_runtime {
   );
 
   my $zdcf = $self->spec;
-  my $cxt = $zdcf->make_context();
+  my $cxt = $zdcf->get_context();
   $rt->context($cxt);
 
-  my @sockets;
-  my @socket_names;
-  foreach my $d_socket (@{$self->sockets}) {
-    push @sockets, $d_socket->setup_socket($cxt);
-    push @socket_names, $d_socket->name; # even if not defined
-  }
-  push @{ $rt->sockets }, @sockets;
-  push @{ $rt->_socket_names}, @socket_names;
+  $zdcf->make_device_sockets($rt);
 
   return $rt;
 }
