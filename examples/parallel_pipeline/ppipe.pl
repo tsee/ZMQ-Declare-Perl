@@ -15,7 +15,7 @@ use strict;
 use warnings;
 $| = 1;
 
-use ZMQ::Declare qw/:all/;
+use ZMQ::Declare;
 use Time::HiRes qw(time sleep);
 use Getopt::Long qw(GetOptions);
 
@@ -26,23 +26,8 @@ GetOptions(
   'forks=i' => \(my $NWorkers),
 );
 die "Need process role as --role=...\n" if not defined $Role;
-
-# Just to support N workers out of the box
-if ($Role eq 'worker' and $NWorkers and $NWorkers > 1) {
-  my @pids;
-  for (1..$NWorkers) {
-    my $pid = fork;
-    if ($pid) { push @pids, $pid; sleep 0.1; }
-    else      { @pids = (); last; }
-  }
-
-  if (@pids) {
-    waitpid($_, 0) for @pids; # not elegant, but it's just an example
-    print "All children done!\n";
-    exit(0);
-  }
-  print "[$$] Worker staring.\n";
-}
+die "Cannot spawn more than one ventilator or sink (makes no sense)"
+  if $NWorkers && $NWorkers > 1 and $Role ne 'worker';
 
 # We put the main component implementations in the same place.
 # If you have complicated components, this makes no sense,
@@ -70,7 +55,8 @@ my %MainLoops = (
 
   worker => sub {
     my ($runtime) = @_;
-    my ($input, $output) = @{ $runtime->sockets };
+    my $input = $runtime->get_socket_by_name("input");
+    my $output = $runtime->get_socket_by_name("output");
 
     # Process tasks forever
     while (1) {
@@ -108,6 +94,8 @@ my %MainLoops = (
   }, # end of sink main loop
 );
 
-my $schema = Spec->new(tree => 'parallel_pipeline.zspec')->create_schema("parallel_pipeline");
-$schema->get_component($Role)->run('main' => $MainLoops{$Role});
+my $spec = ZMQ::Declare::ZDCF->new(tree => 'parallel_pipeline.zdcf');
+my $dev = $spec->device($Role);
+$dev->implementation($MainLoops{$Role});
+$dev->run(nforks => $NWorkers);
 
