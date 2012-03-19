@@ -9,40 +9,58 @@ use Moose::Util::TypeConstraints;
 use JSON ();
 use ZeroMQ::Constants qw(:all);
 
-# TODO complete
-my %socket_types = (
-  ZMQ_PUB => ZMQ_PUB,
-  ZMQ_SUB => ZMQ_SUB,
-  ZMQ_PUSH => ZMQ_PUSH,
-  ZMQ_PULL => ZMQ_PULL,
-  ZMQ_UPSTREAM => ZMQ_UPSTREAM,
-  ZMQ_DOWNSTREAM => ZMQ_DOWNSTREAM,
-  ZMQ_REQ => ZMQ_REQ,
-  ZMQ_REP => ZMQ_REP,
-  ZMQ_PAIR => ZMQ_PAIR,
-  ZMQ_XREQ => ZMQ_XREQ,
-  ZMQ_XREP => ZMQ_XREP,
-  ZMQ_XPUB => ZMQ_XPUB,
-  ZMQ_XSUB => ZMQ_XSUB,
+#my %socket_types = (
+#  ZMQ_PUB => ZMQ_PUB,
+#  ZMQ_SUB => ZMQ_SUB,
+#  ZMQ_PUSH => ZMQ_PUSH,
+#  ZMQ_PULL => ZMQ_PULL,
+#  ZMQ_UPSTREAM => ZMQ_UPSTREAM,
+#  ZMQ_DOWNSTREAM => ZMQ_DOWNSTREAM,
+#  ZMQ_REQ => ZMQ_REQ,
+#  ZMQ_REP => ZMQ_REP,
+#  ZMQ_PAIR => ZMQ_PAIR,
+#  ZMQ_XREQ => ZMQ_XREQ,
+#  ZMQ_XREP => ZMQ_XREP,
+#  ZMQ_XPUB => ZMQ_XPUB,
+#  ZMQ_XSUB => ZMQ_XSUB,
+#);
+
+
+my %zdcf_socket_types = (
+  pub => ZMQ_PUB,
+  sub => ZMQ_SUB,
+  push => ZMQ_PUSH,
+  pull => ZMQ_PULL,
+  req => ZMQ_REQ,
+  rep => ZMQ_REP,
+  pair => ZMQ_PAIR,
+  xreq => ZMQ_XREQ,
+  xrep => ZMQ_XREP,
+  xpub => ZMQ_XPUB,
+  xsub => ZMQ_XSUB,
+
+  # not official, just aliases
+  upstream => ZMQ_UPSTREAM,
+  downstream => ZMQ_DOWNSTREAM,
 );
-my %numeric_socket_types = reverse %socket_types;
 
-enum 'ZMQDeclareSocketType' => [keys %socket_types];
+# FIXME reverse is not good enough here
+#my %zdcf_numeric_socket_types = reverse %zdcf_socket_types;
+#enum 'ZMQDeclareZDCFSocketType' => [keys %zdcf_socket_types];
+#subtype 'ZMQDeclareNumericSocketType'
+#  => as 'Int'
+#  => where {exists $numeric_socket_types{$_}};
+#coerce 'ZMQDeclareNumericSocketType'
+#  => from 'Str'
+#    => via {$socket_types{$_}};
 
-subtype 'ZMQDeclareNumericSocketType'
-  => as 'Int'
-  => where {exists $numeric_socket_types{$_}};
-
-coerce 'ZMQDeclareNumericSocketType'
-  => from 'Str'
-    => via {$socket_types{$_}};
-
-sub sock_type_to_number {
+sub zdcf_sock_type_to_number {
   my $class = shift;
-  return $socket_types{shift()};
+  return $zdcf_socket_types{shift()};
 }
 
 enum 'ZMQDeclareSocketConnectType' => [qw(connect bind)];
+
 
 #unsettable: ZMQ_FD, ZMQ_EVENTS, ZMQ_TYPE, 
 my %settable_sockopts = (

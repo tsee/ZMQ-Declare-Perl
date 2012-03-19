@@ -94,14 +94,49 @@ sub make_device_sockets {
     if not defined $dev_spec or not ref($dev_spec) eq 'HASH';
 
   my $cxt = $dev_runtime->context;
+  my @socks;
   foreach my $sockname (grep $_ ne 'type', keys %$dev_spec) {
     my $sock_spec = $dev_spec->{$sockname};
     my $socket = $self->_setup_socket($cxt, $sock_spec);
+    push @socks, [$socket, $sock_spec];
     $dev_runtime->sockets->{$sockname} = $socket;
   }
 
+  $self->_init_sockets(\@socks, "bind");
+  $self->_init_sockets(\@socks, "connect");
+
   return();
 }
+
+sub _setup_socket {
+  my ($self, $cxt, $sock_spec) = @_;
+
+  my $type = $sock_spec->{type};
+  my $typenum = ZMQ::Declare::Types->zdcf_sock_type_to_number($type);
+  my $sock = $cxt->socket($typenum);
+
+  return $sock;
+}
+
+sub _init_sockets {
+  my ($self, $socks, $connecttype) = @_;
+
+  foreach my $sock_n_spec (@$socks) {
+    my ($sock, $spec) = @$sock_n_spec;
+    $self->_init_socket_conn($sock, $spec, $connecttype);
+  }
+}
+
+sub _init_socket_conn {
+  my ($self, $sock, $spec, $connecttype) = @_;
+
+  my $conn_spec = $spec->{$connecttype};
+  return if not $conn_spec;
+
+  my @endpoints = (ref($conn_spec) eq 'ARRAY' ? @$conn_spec : $conn_spec);
+  $sock->$connecttype($_) for @endpoints;
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
