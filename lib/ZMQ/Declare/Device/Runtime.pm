@@ -31,7 +31,10 @@ has 'context' => (
 sub get_socket_by_name {
   my $self = shift;
   my $name = shift;
-  return $self->sockets->{$name};
+  my $sock = $self->sockets->{$name};
+  Carp::croak("Cannot find socket for name '$name'")
+    if not defined $sock;
+  return $sock;
 }
 
 
