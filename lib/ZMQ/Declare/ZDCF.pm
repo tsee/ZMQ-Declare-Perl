@@ -57,9 +57,9 @@ sub BUILD {
     }
 
     $tree = $self->encoder->decode($sref);
-
     Carp::croak("Failed to decode input ZDCF")
       if not defined $tree;
+
     $self->tree($tree);
   }
 

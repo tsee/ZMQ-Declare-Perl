@@ -2,50 +2,60 @@ package # hide from PAUSE
   EventBroker;
 use Moose;
 
-use ZMQ::Declare qw/:all/;
+use ZMQ::Declare;
 
-has 'specfile' => (
-  is => 'ro',
-  isa => 'Str',
-  required => 1,
-);
+my $ClientSpec = ZMQ::Declare::ZDCF->new( tree => {
+  client => {
+    type => 'event_client',
+    event_dispatch => {
+      type => 'pub',
+      connect => 'tcp://localhost:5999',
+      option => {hwm => 10000}
+    }
+  },
+});
 
-has 'schema' => (
-  is => 'ro',
-  isa => 'ZMQ::Declare::Schema',
-  handles => [qw(get_component)],
-);
+my $ServiceSpec = ZMQ::Declare::ZDCF->new( tree => {
+  broker => {
+    type => 'event_broker',
+    event_listener => {
+      type => 'sub',
+      bind => 'tcp://*:5999',
+      option => {subscribe => ''}
+    },
+    work_distributor => {
+      type => 'push',
+      bind => 'tcp://*:5998',
+      option => {hwm => 500000},
+    },
+  },
+  worker => {
+    type => 'event_processor',
+    work_queue => {
+      type => 'pull',
+      connect => 'tcp://localhost:5998',
+    },
+  },
+});
 
-# Call this on any instance to get a cached 0MQ socket for sending events
-has 'client_socket' => (
-  is => 'ro',
-  isa => 'ZeroMQ::Socket',
-  lazy => 1,
-  builder => '_build_client_socket',
-);
-
-sub _build_client_socket {
-  $_[0]->_client_runtime->get_socket_by_name("event_dispatch")
-}
-
-# internal: the runtime for the cached clinet socket
 has '_client_runtime' => (
   is => 'rw',
-  isa => 'ZMQ::Declare::Component::Runtime',
-  lazy => 1,
-  builder => '_build_client_runtime',
 );
 
-sub _build_client_runtime {
-  $_[0]->get_component("client")->make_runtime
+# instance method for caching (don't want to reconnect all the time)
+sub client_socket {
+  my $self = shift;
+  my $rt = $self->_client_runtime;
+  if (not $rt) {
+    $rt = $ClientSpec->device("client")->make_runtime;
+    $self->_client_runtime($rt);
+  }
+  return $rt->get_socket_by_name("event_dispatch");
 }
 
-# sets up the ZMQ::Declare::Schema
-sub BUILD {
-  my $self = shift;
-  my $spec = Spec->new(tree => $self->specfile);
-  $self->{schema} = $spec->create_schema('event_processing');
-}
+# static and/or instance methods
+sub broker { $ServiceSpec->device("broker") }
+sub worker { $ServiceSpec->device("worker") }
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

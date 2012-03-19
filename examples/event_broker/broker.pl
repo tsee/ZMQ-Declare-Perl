@@ -7,10 +7,14 @@ use ZeroMQ qw(:all);
 
 use EventBroker;
 
-my $broker = EventBroker->new(specfile => "event_processing.zspec");
-my $comp = $broker->get_component("broker");
+my $eb = EventBroker->new;
+my $device = $eb->broker;
 
-$comp->run( main => sub {
+$device->implementation(\&main_broker_loop);
+$device->run;
+
+my $messages = 0;
+sub main_broker_loop {
   my ($runtime) = @_;
   my $listener = $runtime->get_socket_by_name("event_listener");
   my $work_dist = $runtime->get_socket_by_name("work_distributor");
@@ -25,6 +29,8 @@ $comp->run( main => sub {
     $poller->poll();
     my $message = $listener->recv();
     $work_dist->send($message);
+    $messages++;
+    print "Processed $messages messages.\n" if not $messages % 1000;
 
     # Instead, if there are multi-part messages:
     # while (1) {
@@ -35,4 +41,4 @@ $comp->run( main => sub {
     #   last unless $more;
     # }
   }
-});
+}
