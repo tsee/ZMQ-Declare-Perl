@@ -61,44 +61,22 @@ sub zdcf_sock_type_to_number {
 
 enum 'ZMQDeclareSocketConnectType' => [qw(connect bind)];
 
-
-#unsettable: ZMQ_FD, ZMQ_EVENTS, ZMQ_TYPE, 
-my %settable_sockopts = (
-  ZMQ_BACKLOG => ZMQ_BACKLOG(),
-  ZMQ_LINGER => ZMQ_LINGER(),
-  ZMQ_RECONNECT_IVL => ZMQ_RECONNECT_IVL(),
-  #ZMQ_RECONNECT_IVL_MAX => ZMQ_RECONNECT_IVL_MAX(),
-  ZMQ_HWM => ZMQ_HWM(),
-  ZMQ_SWAP => ZMQ_SWAP(),
-  ZMQ_AFFINITY => ZMQ_AFFINITY(),
-  ZMQ_IDENTITY => ZMQ_IDENTITY(),
-  ZMQ_SUBSCRIBE => ZMQ_SUBSCRIBE(),
-  ZMQ_UNSUBSCRIBE => ZMQ_UNSUBSCRIBE(), # kind of pointless in options...
-  ZMQ_RATE => ZMQ_RATE(),
-  ZMQ_RECOVERY_IVL => ZMQ_RECOVERY_IVL(),
-  #ZMQ_RECOVERY_IVL_MSEC => ZMQ_RECOVERY_IVL_MSEC(),
-  ZMQ_MCAST_LOOP => ZMQ_MCAST_LOOP(),
-  ZMQ_SNDBUF => ZMQ_SNDBUF(),
-  ZMQ_RCVBUF => ZMQ_RCVBUF(),
+my %zdcf_settable_sockopts = (
+  hwm => ZMQ_HWM,
+  swap => ZMQ_SWAP,
+  affinity => ZMQ_AFFINITY,
+  identity => ZMQ_IDENTITY,
+  subscribe => ZMQ_SUBSCRIBE,
+  rate => ZMQ_RATE,
+  recovery_ivl => ZMQ_RECONNECT_IVL,
+  mcast_loop => ZMQ_MCAST_LOOP,
+  sndbuf => ZMQ_SNDBUF,
+  rcvbuf => ZMQ_RCVBUF,
 );
 
-enum 'ZMQDeclareSettableSocketOptionType' => [keys %settable_sockopts];
-
-subtype 'ZMQDeclareSettableSocketOptionsHashRefType'
-  => as 'HashRef'
-  => where {not grep !exists($settable_sockopts{$_}), keys %$_}; # FIXME useful error messages!
-
-
-subtype 'ZMQDeclareSettableNumericSocketOptionType'
-  => as 'Int';
-
-coerce 'ZMQDeclareSettableNumericSocketOptionType'
-  => from 'Str'
-    => via {$settable_sockopts{$_}};
-
-sub settable_sockopt_type_to_number {
+sub zdcf_settable_sockopt_type_to_number {
   my $class = shift;
-  return $settable_sockopts{shift()};
+  return $zdcf_settable_sockopts{shift()};
 }
 
 

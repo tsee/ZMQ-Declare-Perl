@@ -115,6 +115,13 @@ sub _setup_socket {
   my $typenum = ZMQ::Declare::Types->zdcf_sock_type_to_number($type);
   my $sock = $cxt->socket($typenum);
 
+  # FIXME figure out whether some of these options *must* be set after the connects
+  my $opt = $sock_spec->{option} || {};
+  foreach my $opt_name (keys %$opt) {
+    my $opt_num = ZMQ::Declare::Types->zdcf_settable_sockopt_typee_to_number($opt_name);
+    $sock->set_sockopt($opt_num, $opt->{$opt_name});
+  }
+
   return $sock;
 }
 
