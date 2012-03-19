@@ -6,19 +6,10 @@ use warnings;
 
 our $VERSION = '0.01';
 
-our %Namespaces;
-BEGIN {
-  %Namespaces = (
-    map {$_ => "ZMQ::Declare::$_"} qw(Device ZDCF)
-  );
-  eval join "\n", map {qq[sub $_ () {"$Namespaces{$_}"}]} keys %Namespaces;
-}
-
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = (keys %Namespaces);
+our @EXPORT_OK = ();
 our %EXPORT_TAGS = (
-  'namespaces' => [keys %Namespaces],
   'all' => \@EXPORT_OK,
 );
 

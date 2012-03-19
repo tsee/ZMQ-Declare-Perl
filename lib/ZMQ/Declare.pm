@@ -12,21 +12,14 @@ require ZMQ::Declare::Constants;
 require ZMQ::Declare::Types;
 
 require ZMQ::Declare::ZDCF;
-
-require ZMQ::Declare::Schema;
 require ZMQ::Declare::Device;
-require ZMQ::Declare::Socket;
-require ZMQ::Declare::Context;
 
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = @ZMQ::Declare::Constants::EXPORT_OK;
 our %EXPORT_TAGS = (
   'all' => \@EXPORT_OK,
-  'namespaces' => $ZMQ::Declare::Constants::EXPORT_TAGS{namespaces},
 );
-
-ZMQ::Declare::Constants->import(':namespaces');
 
 1;
 __END__

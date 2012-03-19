@@ -9,7 +9,6 @@ use Carp ();
 use ZeroMQ qw(:all);
 
 use ZMQ::Declare;
-use ZMQ::Declare::Constants qw(:namespaces);
 use ZMQ::Declare::Device::Runtime;
 use ZMQ::Declare::ZDCF;
 
