@@ -175,6 +175,12 @@ sub _init_socket_conn {
   $sock->$connecttype($_) for @endpoints;
 }
 
+sub write_to_file {
+  my ($self, $filename) = @_;
+  open my $fh, ">", $filename or die $!;
+  print $fh ${ $self->encoder->encode($self->tree) };
+  close $fh;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
