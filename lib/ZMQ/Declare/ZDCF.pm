@@ -51,41 +51,56 @@ sub device {
   my $self = shift;
   my $name = shift;
 
-  my $cxt = $self->_build_context;
-
-  my $device = $self->_build_device($cxt, $name);
-
-  return $schema;
+  my $device = $self->_build_device($name);
+  return $device;
 }
 
 sub _build_device {
-  my ($self, $cxt, $name) = @_;
+  my ($self, $name) = @_;
 
   my $tree = $self->tree;
   Carp::croak("Invalid device '$name'")
     if $name eq 'context' or not exists $tree->{$name};
 
   my $dev_spec = $tree->{$name};
+  my $typename = $dev_spec->{type};
+  $typename = '' if not defined $typename;
+
   return ZMQ::Declare::Device->new(
     name => $name,
-    context => $cxt,
-    typename => '', # FIXME
+    spec => $self,
+    typename => $typename,
   );
-# FIXME
-  foreach my $sock_spec (@{$spec->{sockets} || []}) {
-    push @{$comp->sockets}, $self->_build_socket($comp, $sock_spec);
-  }
-
-  return $comp;
 }
 
-sub _build_context {
+# runtime context
+sub make_context {
   my ($self) = @_;
   my $tree = $self->tree;
   my $context_str = $tree->{context};
   my $iothreads = defined $context_str ? $context_str->{iothreads} : 1;
   my $cxt = ZeroMQ::Context->new($iothreads);
   return $cxt;
+}
+
+# runtime sockets
+sub make_device_sockets {
+  my $self = shift;
+  my $dev_runtime = shift;
+
+  my $tree = $self->tree;
+  my $dev_spec = $tree->{ $dev_runtime->name };
+  Carp::croak("Could not find ZDCF entry for device '".$dev_runtime->name."'")
+    if not defined $dev_spec or not ref($dev_spec) eq 'HASH';
+
+  my $cxt = $dev_runtime->context;
+  foreach my $sockname (grep $_ ne 'type', keys %$dev_spec) {
+    my $sock_spec = $dev_spec->{$sockname};
+    my $socket = $self->_setup_socket($cxt, $sock_spec);
+    $dev_runtime->sockets->{$sockname} = $socket;
+  }
+
+  return();
 }
 
 no Moose;

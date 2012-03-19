@@ -11,6 +11,7 @@ use ZeroMQ qw(:all);
 use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:namespaces);
 use ZMQ::Declare::Device::Runtime;
+use ZMQ::Declare::ZDCF;
 
 has 'name' => (
   is => 'rw',
@@ -24,31 +25,26 @@ has 'typename' => (
   required => 1,
 );
 
-has 'implementation' => ( # FIXME nonono, the type of device has an implementation!
+has 'implementation' => (
   is => 'rw',
-  isa => '...',
 );
 
-has 'context' => (
-  is => 'rw',
-  isa => 'ZMQ::Declare::Context',
-);
-
-has 'sockets' => (
+has 'spec' => (
   is => 'ro',
-  isa => 'HashRef[ZMQ::Declare::Socket]',
-  default => sub {{}},
+  isa => 'ZMQ::Declare::ZDCF',
+  required => 1,
 );
-
 
 sub run {
   my $self = shift;
   my %args = @_;
-  my $callback = $args{main}
-    or Carp::croak("Need 'main' CODE reference to run ZMQ::Declare::Device '" . $self->name . "'");
+
+  my $callback = $self->implementation;
+  Carp::croak("Need 'implementation' CODE reference to run ZMQ::Declare::Device '" . $self->name . "'")
+    if not defined $callback or not ref($callback) eq 'CODE';
 
   if ($args{nforks} and $args{nforks} > 1) {
-    $self->_fork_runtimes(\%args);
+    $self->_fork_runtimes(\%args, $callback);
   }
   else {
     $callback->($self->make_runtime);
@@ -58,7 +54,7 @@ sub run {
 }
 
 sub _fork_runtimes {
-  my ($self, $args) = @_;
+  my ($self, $args, $callback) = @_;
 
   my $nforks = $args->{nforks};
 
@@ -81,7 +77,7 @@ sub _fork_runtimes {
     }
   }
   else { # kid
-    $args->{main}->($self->make_runtime);
+    $callback->($self->make_runtime);
     exit(0);
   }
   return();
@@ -94,10 +90,11 @@ sub make_runtime {
   #       conceptually, one could have N runtime objects for the same
   #       Device.
   my $rt = ZMQ::Declare::Device::Runtime->new(
-    name => $self->name,
-    component => $self,
+    device => $self,
   );
-  my $cxt = $self->context->setup_context;
+
+  my $zdcf = $self->spec;
+  my $cxt = $zdcf->make_context();
   $rt->context($cxt);
 
   my @sockets;

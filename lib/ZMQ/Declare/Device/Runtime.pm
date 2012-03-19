@@ -1,4 +1,4 @@
-package ZMQ::Declare::Component::Runtime;
+package ZMQ::Declare::Device::Runtime;
 use 5.008001;
 use Moose;
 
@@ -9,29 +9,18 @@ use ZeroMQ qw(:all);
 use ZMQ::Declare;
 use ZMQ::Declare::Constants qw(:namespaces);
 
-has 'name' => (
-  is => 'rw',
-  isa => 'Str',
-  required => 1,
-);
-
 # "declare-time" progenitor
-has 'component' => (
+has 'device' => (
   is => 'rw',
-  isa => 'ZMQ::Declare::Component',
+  isa => 'ZMQ::Declare::Device',
   required => 1,
+  handles => [qw(name)],
 );
 
 has 'sockets' => (
   is => 'ro',
-  isa => 'ArrayRef[ZeroMQ::Socket]',
-  default => sub {[]},
-);
-
-has '_socket_names' => (
-  is => 'ro',
-  isa => 'ArrayRef[Str]',
-  default => sub {[]},
+  isa => 'HashRef[ZeroMQ::Socket]',
+  default => sub {{}},
 );
 
 has 'context' => (
@@ -42,12 +31,7 @@ has 'context' => (
 sub get_socket_by_name {
   my $self = shift;
   my $name = shift;
-  my $names = $self->_socket_names;
-  foreach my $i (0 .. $#$names ) {
-    my $n = $names->[$i];
-    return $self->sockets->[$i] if defined $n and $n eq $name;
-  }
-  return();
+  return $self->sockets->{$name};
 }
 
 
@@ -58,7 +42,7 @@ __END__
 
 =head1 NAME
 
-ZMQ::Declare::Component::Runtime - The runtime pitch on a ZMQ::Declare Component object
+ZMQ::Declare::Device::Runtime - The runtime pitch on a ZMQ::Declare Device object
 
 =head1 SYNOPSIS
 
