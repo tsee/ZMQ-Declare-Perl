@@ -1,0 +1,21 @@
+{
+  "context": {
+    "iothreads": 1
+  },
+
+  "client":{
+    "type": "wclient",
+    "subscriber":{
+      "type": "sub",
+      "connect": "tcp://localhost:5556"
+    }
+  },
+
+  "server":{
+    "type": "wserver",
+    "publisher":{
+      "type": "pub",
+      "bind": "tcp://*:5556"
+    }
+  }
+}
