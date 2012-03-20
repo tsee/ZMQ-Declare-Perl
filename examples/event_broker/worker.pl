@@ -10,7 +10,7 @@ use EventBroker;
 my $nforks = $ARGV[0] || 1;
 print "Spawning $nforks workers!\n";
 
-my $eb = EventBroker->new(specfile => "event_processing.zspec");
+my $eb = EventBroker->new;
 my $device = $eb->worker;
 
 $device->implementation(\&main_worker_loop);
