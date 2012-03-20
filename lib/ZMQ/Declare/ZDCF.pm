@@ -16,7 +16,7 @@ use Carp ();
 use Clone ();
 
 has 'validator' => (
-  is => 'ro',
+  is => 'rw',
   isa => 'ZMQ::Declare::ZDCF::Validator',
   default => sub {ZMQ::Declare::ZDCF::Validator->new},
 );
@@ -175,10 +175,15 @@ sub _init_socket_conn {
   $sock->$connecttype($_) for @endpoints;
 }
 
+sub encode {
+  my ($self) = @_;
+  return $self->encoder->encode($self->tree);
+}
+
 sub write_to_file {
   my ($self, $filename) = @_;
   open my $fh, ">", $filename or die $!;
-  print $fh ${ $self->encoder->encode($self->tree) };
+  print $fh ${ $self->encode };
   close $fh;
 }
 
@@ -189,26 +194,106 @@ __END__
 
 =head1 NAME
 
-ZMQ::Declare::ZDCF - Object representing a 0MQ-declare specification
+ZMQ::Declare::ZDCF - Object representing ZeroMQ Device Configuration (File)
 
 =head1 SYNOPSIS
 
   use ZMQ::Declare;
-
-  my $zdcf = ZMQ::Declare::ZDCF->new(tree => $some_json_zdcf);
-  # or:
+  
+  my $zdcf = ZMQ::Declare::ZDCF->new(tree => $json_zdcf_filename);
+  # Alternatively
   my $zdcf = ZMQ::Declare::ZDCF->new(
     encoder => ZMQ::Declare::ZDCF::Encoder::YourFormat->new,
-    tree => $your_format_string.
+    tree => $zdcf_file_with_different_encoding
   );
 
 =head1 DESCRIPTION
+
+This class represents the content of a single ZDCF. That means,
+it covers a single 0MQ threading context and an arbitrary
+number of devices and sockets.
+
+=head1 METHODS
+
+=head2 new
+
+Constructor taking named arguments. Any parameters listed under
+I<METHOD-ACCESSIBLE INSTANCE PROPERTIES> can be supplied, but
+a C<tree> is the main input and thus required.
+
+You can provide the C<tree> property as any one of the following:
+
+=over 2
+
+=item *
+
+A hash reference that represents the underlying ZDCF data structure.
+It will be validated using the ZDCF validator but otherwise won't
+be touched (or cloned).
+
+=item *
+
+A reference to a scalar. The scalar is assumed to contain valid input
+for the decoder (by default: JSON-encoded ZDCF). The thusly decoded
+Perl data structure will be validated like if you provided a hash
+reference.
+
+=item *
+
+A string, which is interpreted as a file name to read from. The data
+read from the file will be decoded and validated as per the above.
+
+=back
+
+=head2 device
+
+=head2 device_names
+
+=head2 get_context
+
+=head2 encode
+
+Encodes the ZDCF data structure using the object's encoder and
+returns a scalar reference to the result.
+
+=head2 write_to_file
+
+Writes the ZDCF content to the given file name.
+
+=head2 make_device_sockets
+
+I<Used by other ZMQ::Declare classes, but considered internal.>
 
 =head1 SEE ALSO
 
 The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
 
+L<ZMQ::Declare>
+
 L<ZeroMQ>
+
+=head1 METHOD-ACCESSIBLE INSTANCE PROPERTIES
+
+=head2 validator
+
+Get/set the validator object that can check a Perl-datastructure ZDCF tree
+for structural correctness. Must be a L<ZMQ::Declare::ZDCF::Validator>
+object or an object of a derived class. Defaults to a new
+C<ZMQ::Declare::ZDCF::Validator> object.
+
+=head2 encoder
+
+Get/set the encoder (decoder) object for turning a text file into a
+ZDCF tree in memory and vice versa. Needs to be an object of a class
+derived from L<ZMQ::Declare::ZDCF::Encoder>. Defaults to a
+L<ZMQ::Declare::ZDCF::Encoder::JSON> object for reading/writing JSON-encoded
+ZDCF.
+
+=head2 tree
+
+The actual nested (and untyped) Perl data structure that represents the ZDCF
+information. See the documentation for the constructor for details on what
+data is valid to supply to the constructor for this property.
 
 =head1 AUTHOR
 
