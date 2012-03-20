@@ -247,9 +247,18 @@ read from the file will be decoded and validated as per the above.
 
 =head2 device
 
+Given a device name, creates a L<ZMQ::Declare::Device> object from
+the information stored in the ZDCF tree and returns that object.
+
+This C<ZMQ::Declare::Device> object is what you can use to actually
+implement 0MQ devices that are configured through ZDCF.
+Note that creating a C<ZMQ::Declare::Device> object does B<not>
+create any 0MQ contexts, sockets, or connections yet.
+
 =head2 device_names
 
-=head2 get_context
+Returns a list (not a reference) of device names that are known to
+the ZDCF tree.
 
 =head2 encode
 
@@ -259,6 +268,14 @@ returns a scalar reference to the result.
 =head2 write_to_file
 
 Writes the ZDCF content to the given file name.
+
+=head2 get_context
+
+Creates a L<ZeroMQ::Context> object from the ZDCF tree and returns
+it. In other words, this creates the actual threading context of
+0MQ. Generally, this is called indirectly by using the C<device>
+method to obtain a C<ZMQ::Declare::Device> object and then
+calling the C<run> or C<make_runtime> methods on that.
 
 =head2 make_device_sockets
 
