@@ -26,24 +26,33 @@ __END__
 
 =head1 NAME
 
-ZMQ::Declare - Declarative 0MQ infrastructure
+ZMQ::Declare - Declarative 0MQ Infrastructure
 
 =head1 SYNOPSIS
 
-  use ZMQ::Declare qw(:all);
-  my $schema = Spec->new(tree => 'mynetwork.zspec')->create_schema("events");
-  my $broker = $schema->get_component("event_broker");
+  use ZMQ::Declare;
   
-  # This will create the actual 0MQ objects and connections, configure them,
-  # and then hand control to your main loop!
-  $broker->run( main => sub {
+  # Read the network "topology" (who talks to whom and how) from a shared
+  # file or alternatively, provide an equivalent nested Perl data structure.
+  my $spec = ZMQ::Declare::ZDCF->new(tree => 'myapplication.zdcf');
+  
+  # Pick the device in your network that this code path is to implement
+  my $worker = $spec->device("event_processor");
+  
+  # Set up your main loop
+  $worker->implementation( sub {
     my ($runtime) = @_;
-    my $input_sock = $runtime->get_socket_by_name("listener");
-    ... other sockets ...
+    my $input_sock = $runtime->get_socket_by_name("work_queue");
+    ... get other sockets ...
     while (1) {
-      ... recv, dispatch to other sockets ...
+      ... recv, work, report, ...
     }
   });
+  
+  # Kick it off. This will create the actual 0MQ objects, make
+  # connections, configure them, potentially fork off many processes,
+  # and then hand control to your main loop with everything set up!
+  $worker->run(nforks => 20);
 
 Actual, runnable examples can be found in the F<examples/>
 subdirectory of the C<ZMQ::Declare> distribution.
@@ -56,50 +65,56 @@ to gauge the current state of stability.>
 
 0MQ is a light-weight messaging library built on TCP.
 
-C<ZMQ::Declare> aims to provide a declarative and/or configuration
-driven way of establishing a network of 0MQ sockets/connections.
-Normally using the common Perl binding, L<ZeroMQ>, makes you to
+The Perl module C<ZMQ::Declare> aims to provide a declarative and/or
+configuration-driven way of establishing a distributed application
+whose individual components (devices in 0MQ speak) talk to one another
+using 0MQ. For example, such an "application" could be an entire event
+processing stack that has many different clients producing events,
+a broker, many event processing workers, and a result aggregator.
+
+Normally using the common Perl binding, L<ZeroMQ>, requires you to
 explicitly write out the code to create 0MQ context and sockets, and
 to write the connect/bind logic for each socket. Since the use of
-0MQ commonly implies that multiple disjunct piece of software talk
-to one another, it's easy to scatter this logic in many places.
+0MQ commonly implies that multiple disjunct piece of code talk
+to one another, it's easy to either scatter this logic in many places
+or re-invent application-specific network configurations.
 (Which side of the connection is supposed to C<bind()> and which is
 supposed to C<connect()> again?)
-For what it's worth, I've always felt that the network components
+For what it's worth, I've always felt that the networked components
 that I've written were simply flying in close formation.
 
 C<ZMQ::Declare> is an attempt to concentrate the information about
 your I<network> of 0MQ sockets and connections in one place, to
 create and connect all sockets for you, and to allow you to focus
-on the actual implementation of the various components that talk
-to one another using 0MQ.
+on the actual implementation of the various devices that talk
+to one another using 0MQ. It turns out that I am not the only one
+who thought this would come in useful: L<http://rfc.zeromq.org>
+defines a standard device configuration data structure (it does
+not specify encoding format) called I<ZDCF> (ZeroMQ Device
+Configuration File).
+
+Despite the name I<ZDCF>, there's no technical need
+for this information to live in a file. C<ZMQ::Declare> implements
+ZDCF file reading/decoding (parsing) as well as some degree of
+B<validation>. This is implemented in the L<ZMQ::Declare::ZDCF>
+class which represents a single such configuration. The default
+decoder/encoder assumes JSON input/output, but is pluggable.
 
 The envisioned typical use of C<ZMQ::Declare> is that you write
-a single I<zspec> specification file (with a simple JSON-based
-format) that defines various components in your network and how
-they interact with one another. The specification for I<zspec>
-files can be found at L<ZMQ::Declare::ZSpecFormat>. This approach
-means that as long as you have a library to handle I<zspec> files,
-you can write your components in any programming language and mix
-and match to your heart's content. For example, you might choose
-to implement your right-loop message broker in C for performance,
+a single I<ZDCF> specification file that defines various devices
+in your network and how they interact with one another. This approach
+means that as long as you have a library to handle I<ZDCF> files,
+you can write your devices in a multitude of programming languages
+and mix and match to your heart's content. For example, you might
+choose to implement your tight-loop message broker in C for performance,
 but prefer to write the parallelizable worker components in
 Perl for ease of development.
 
-C<ZMQ::Declare> comes with a set of classes that mimic the normal
-C<ZeroMQ>/0MQ objects. Instead of relying on a I<zspec> file, you
-can use the API of these classes directly. In a future version,
-you will be able to generate I<zspec> files from these object
-hierarchies.
-
-The C<ZMQ::Declare> object hierarchies can be passed around your
-application safely. They are thread-safe (unlike, say a C<ZeroMQ::Socket>)
-and the C<ZMQ::Declare::Socket> objects do not have any actual
-connections yet.
+For details on the ZDCF format, please refer to L<ZMQ::Declare::ZDCF>.
 
 =head1 SEE ALSO
 
-L<ZMQ::Declare::ZSpecFormat>
+L<ZMQ::Declare::ZDCF>
 
 L<ZeroMQ>
 
