@@ -113,8 +113,101 @@ ZMQ::Declare::Device - A ZMQ::Declare Device object
 =head1 SYNOPSIS
 
   use ZMQ::Declare;
+  # See synopsis for ZMQ::Declare
 
 =head1 DESCRIPTION
+
+Instances of this class represent a single 0MQ device. With less 0MQ
+jargon, that means they represent a single component of your network
+of things that interact using 0MQ sockets.
+
+You typically obtain these objects by calling the C<device> method
+on a L<ZMQ::Declare::ZDCF> object. It is important to note that a
+C<ZMQ::Declare::Device> object contains B<no runtime 0MQ components
+like sockets or 0MQ contexts and maintains no network connections>.
+This is to say that you can create and use C<ZMQ::Declare::Device>
+in an abstract, offline way.
+
+Shit gets real once you call the C<run()> or C<make_runtime> methods
+on a C<ZMQ::Declare::Device>: Those methods will (the former implicitly,
+the latter explicitly) construct a C<ZMQ::Declare::Device::Runtime>
+object, create a threading context, create sockets, and make connections.
+
+The C<ZMQ::Declare::Device::Runtime> object will then hold the actual
+references to the underlying 0MQ objects.
+
+This clear split should make it easy for users to know when they are
+handling live or abstract devices.
+
+=head1 PROPERTIES
+
+These are accessible with normal mutator methods.
+
+=head2 name
+
+The name of the device. This is required to be unique in a ZDCF context
+and cannot be I<context>.
+
+=head2 typename
+
+The type of the device that's represented by the object. Types starting
+with I<z> are reserved for core 0MQ devices.
+
+Right now, this is required by the ZDCF specification, but unused in this
+library. In the future, it might be useful to register device
+implementations in a global library, but that requires some thought.
+
+Read-only.
+
+=head2 implementation
+
+The code-reference that is to be invoked by the C<run()> method of the
+object. This needs to be set by the user before calling C<run()>.
+The code-reference will be called by C<run()> with a
+C<ZMQ::Declare::Device::Runtime> object as first argument.
+
+=head2 spec
+
+A reference to the underlying ZDCF specification object.
+
+Read-only.
+
+=head1 METHODS
+
+=head2 new
+
+Constructor taking named arguments (see properties above).
+Typically, you should obtain your C<ZMQ::Declare::Device>
+objects by calling C<device($devicename)> on a L<ZMQ::Declare::ZDCF>
+object instead of using C<new()>.
+
+=head2 run
+
+Requires that an implementation has been set previously (see
+the C<implementation> property above).
+
+Accepts named arguments and currently only accepts the C<nforks>
+option which, if it is larger or equal to two, will fork off
+C<nforks> child processes before doing any further setup.
+The parent will return from C<run()> after all children have
+been reaped. Each child will perform the actions described below.
+
+Calls C<make_runtime> to obtain a new L<ZMQ::Declare::Device::Runtime>.
+
+Then, it invokes the CODE reference that is stored in the implementation
+property and passes the C<ZMQ::Declare::Device::Runtime> object
+as first argument.
+
+=head2 make_runtime
+
+Creates a L<ZMQ::Declare::Device::Runtime> object to hold a 0MQ
+threading context and all 0MQ socket objects. It sets up the
+context, creates the sockets, configures the sockets, binds
+the sockets to bind-endpoints, then finally connects the sockets to
+connect-endpoints.
+
+Returns the Runtime object. Once that object goes out of scope, all
+connections will be disconnected.
 
 =head1 SEE ALSO
 
