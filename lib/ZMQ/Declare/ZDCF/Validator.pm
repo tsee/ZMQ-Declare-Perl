@@ -75,19 +75,46 @@ my $device_schema = {
   required => { 'type' => {type => '//str'} }, # device must have property called 'type'
   rest => {type => '//map', values => $socket_schema}, # anything else is a socket (sigh)
 };
-my $zdcf_schema = {
+my $base_zdcf_schema = {
   type => '//rec',
-  optional => { context => $context_schema },
+  optional => {
+    context => $context_schema,
+    version => { type => '//num', range => {min => 0} },
+  },
   rest => {type => '//map', values => $device_schema}, # anything but the context is a device
 };
 
 my $rx = Data::Rx->new;
-#my $validator_schema = $rx->make_schema($device_schema);
-my $validator_schema = $rx->make_schema($zdcf_schema);
+
+my %validator_schemata;
+sub _get_validator {
+  my $version = shift;
+
+  # normalize version
+  my $major_version = int($version);
+
+  if (not exists $validator_schemata{$major_version}) {
+    if ($major_version < 1) {
+      my $validator_schema = $rx->make_schema($base_zdcf_schema);
+      $validator_schemata{$major_version} = $validator_schema;
+    }
+    else {
+      die __PACKAGE__ . " does not support ZDCF specification version $version";
+    }
+  }
+
+  return $validator_schemata{$major_version};
+}
 
 sub validate {
   my $self = shift;
-  return $validator_schema->check(shift);
+  my $structure = shift;
+
+  # Just extract the spec version so we use the right validation code
+  return 0 if not ref($structure) eq 'HASH';
+  my $spec_version = $structure->{version} || '0'; # 0 == pre-versioned spec
+
+  return _get_validator($spec_version)->check($structure);
 }
 
 no Moose;
@@ -119,11 +146,13 @@ is actually a valid ZDCF tree.
 Returns true if the given Perl data structure is a valid ZDCF tree, false
 otherwise.
 
+Dies if the specification version of the ZDCF tree is unsupported.
+
 =head1 SEE ALSO
 
-The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
+The ZDCF RFC L<http://rfc.zeromq.org/spec:17>
 
-L<Data::Rx>
+L<Data::Rx>, L<http://rx.codesimply.com/index.html>
 
 L<ZeroMQ>
 
