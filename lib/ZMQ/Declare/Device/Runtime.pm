@@ -50,10 +50,65 @@ ZMQ::Declare::Device::Runtime - The runtime pitch on a ZMQ::Declare Device objec
 =head1 SYNOPSIS
 
   use ZMQ::Declare;
+  ... see ZMQ::Declare and ZMQ::Declare::ZDCF ...
+  my $runtime = $device->make_runtime;
+  # or:
+  $device->implementation(\&main_loop);
+  $device->run;
+  
+  sub main_loop {
+    my ($runtime) = @_;
+    my $in_sock = $runtime->get_socket_by_name("listener");
+    my $out_sock = $runtime->get_socket_by_name("distributor");
+
+    while (...) {...} # actual main loop
+  }
 
 =head1 DESCRIPTION
 
+This object represents a full set of run-time 0MQ objects for a 0MQ
+device. It contains a 0MQ threading context and 0MQ sockets that are
+bound or connected to their endpoints.
+
+Try not to share this across forks, see the C<nforks> option to the C<run()>
+method of a C<ZMQ::Declare::Device>.
+
+While there's a constructor, the typical way to obtain a runtime device
+object is to call the C<run()> or C<make_runtime()> methods on an
+abstract L<ZMQ::Declare::Device>.
+
+=head1 INSTANCE PROPERTIES
+
+=head2 device
+
+Each C<ZMQ::Declare::Device::Runtime> object holds a reference to
+its generating C<ZMQ::Declare::Device>, its abstract, declare-time
+progenitor, so to speak.
+
+=head2 context
+
+The threading context for this runtime.
+
+=head2 sockets
+
+A hashref of socket names to L<ZeroMQ::Socket> objects.
+See also: C<get_socket_by_name()>
+
+=head1 METHODS
+
+=head2 new
+
+Constructor taking named parameters. See C<ZMQ::Declare::Device::run()>
+and C<ZMQ::Declare::Device::make_runtime()> instead.
+
+=head2 get_socket_by_name
+
+Takes a socket name as first argument. Returns the socket of
+that name or throws and exception if it doesn't exist.
+
 =head1 SEE ALSO
+
+L<ZMQ::Declare>, L<ZMQ::Declare::Device>
 
 L<ZeroMQ>
 
