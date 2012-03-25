@@ -5,6 +5,7 @@ our $VERSION = '0.01';
 
 use Data::Rx;
 
+# The following spec snippets are shared between ZDCF 0.1 and ZDCF 1.0
 my $context_schema =  { # the top level context obj/hash
   type => '//rec',
   optional => { # can have these properties
@@ -70,19 +71,53 @@ my $socket_schema = {
     }
   ]
 };
-my $device_schema = {
+
+# The following are versioned
+# First for ZDCF 0.1
+my $device_schema_0 = {
   type => '//rec',
-  required => { 'type' => {type => '//str'} }, # device must have property called 'type'
+  # device must have property called 'type'
+  required => { 'type' => {type => '//str'} },
   rest => {type => '//map', values => $socket_schema}, # anything else is a socket (sigh)
 };
-my $base_zdcf_schema = {
+my $base_zdcf_schema_0 = {
   type => '//rec',
   optional => {
     context => $context_schema,
     version => { type => '//num', range => {min => 0} },
   },
-  rest => {type => '//map', values => $device_schema}, # anything but the context is a device
+  rest => {type => '//map', values => $device_schema_0}, # anything but the context is a device
 };
+
+# Now ZDCF 1.0
+my $device_schema_1 = {
+  type => '//rec',
+  optional => {
+    # device CAN have property called 'type' (no longer required)
+    'type' => {type => '//str'},
+    'sockets' => {
+      type => '//map',
+      values => $socket_schema
+    },
+  },
+};
+my $app_schema_1 = {
+  type => '//rec',
+  optional => {
+    context => $context_schema,
+    devices => { type => '//map', values => $device_schema_1 },
+  },
+};
+my $base_zdcf_schema_1 = {
+  type => '//rec',
+  required => {
+    version => { type => '//num', range => {min => 0} },
+  },
+  optional => {
+    apps => { type => '//map', values => $app_schema_1 },
+  },
+};
+
 
 my $rx = Data::Rx->new;
 
@@ -94,8 +129,12 @@ sub _get_validator {
   my $major_version = int($version);
 
   if (not exists $validator_schemata{$major_version}) {
-    if ($major_version < 1) {
-      my $validator_schema = $rx->make_schema($base_zdcf_schema);
+    if ($major_version == 0) {
+      my $validator_schema = $rx->make_schema($base_zdcf_schema_0);
+      $validator_schemata{$major_version} = $validator_schema;
+    }
+    elsif ($major_version == 1) {
+      my $validator_schema = $rx->make_schema($base_zdcf_schema_1);
       $validator_schemata{$major_version} = $validator_schema;
     }
     else {
