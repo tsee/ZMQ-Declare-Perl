@@ -63,8 +63,10 @@ sub BUILD {
     $self->tree($tree);
   }
 
+  $tree = $self->validator->validate_and_upgrade($tree);
   Carp::croak("Failed to validate decoded ZDCF")
-    if not $self->validator->validate($tree);
+    if not defined $tree;
+  $self->tree($tree);
 }
 
 sub device_names {
