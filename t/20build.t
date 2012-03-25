@@ -6,7 +6,7 @@ use Test::More;
 
 my $datadir = -d 't' ? File::Spec->catdir(qw(t data)) : "data";
 
-my $testzdcf = File::Spec->catfile($datadir, 'simple.zdcf');
+my $testzdcf = File::Spec->catfile($datadir, 'simple_v0.zdcf');
 ok(-f $testzdcf)
   or die "Missing test file";
 
