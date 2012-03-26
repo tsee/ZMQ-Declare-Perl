@@ -124,7 +124,6 @@ sub _make_device_sockets {
   Carp::croak("Could not find ZDCF entry for device '".$dev_runtime->name."'")
     if not defined $dev_spec or not ref($dev_spec) eq 'HASH';
 
-
   my $cxt = $dev_runtime->context;
   my @socks;
   my $sockets = $dev_spec->{sockets} || {};
@@ -198,7 +197,7 @@ jargon, that means they represent a single component of your network
 of things that interact using 0MQ sockets.
 
 You typically obtain these objects by calling the C<device> method
-on a L<ZMQ::Declare::ZDCF> object. It is important to note that a
+on a L<ZMQ::Declare::Application> object. It is important to note that a
 C<ZMQ::Declare::Device> object contains B<no runtime 0MQ components
 like sockets or 0MQ contexts and maintains no network connections>.
 This is to say that you can create and use C<ZMQ::Declare::Device>
@@ -229,9 +228,7 @@ and cannot be I<context>.
 The type of the device that's represented by the object. Types starting
 with I<z> are reserved for core 0MQ devices.
 
-Right now, this is required by the ZDCF specification, but unused in this
-library. In the future, it might be useful to register device
-implementations in a global library, but that requires some thought.
+The device type is optional as of ZDCF spec version 1.0.
 
 Read-only.
 
@@ -242,9 +239,9 @@ object. This needs to be set by the user before calling C<run()>.
 The code-reference will be called by C<run()> with a
 C<ZMQ::Declare::Device::Runtime> object as first argument.
 
-=head2 spec
+=head2 application
 
-A reference to the underlying ZDCF specification object.
+A reference to the underlying C<ZMQ::Declare::Application> object.
 
 Read-only.
 
@@ -254,8 +251,8 @@ Read-only.
 
 Constructor taking named arguments (see properties above).
 Typically, you should obtain your C<ZMQ::Declare::Device>
-objects by calling C<device($devicename)> on a L<ZMQ::Declare::ZDCF>
-object instead of using C<new()>.
+objects by calling C<device($devicename)> on a
+L<ZMQ::Declare::Application> object instead of using C<new()>.
 
 =head2 run
 
@@ -288,6 +285,10 @@ connections will be disconnected.
 =head1 SEE ALSO
 
 L<ZeroMQ>
+
+L<ZMQ::Declare>,
+L<ZMQ::Declare::Device::Runtime>,
+L<ZMQ::Declare::Application>
 
 =head1 AUTHOR
 

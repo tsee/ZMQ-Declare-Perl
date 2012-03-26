@@ -9,7 +9,7 @@ use ZMQ::Declare;
 use ZMQ::Declare::ZDCF;
 
 has 'name' => (
-  is => 'rw',
+  is => 'ro',
   isa => 'Str',
   required => 1,
 );
@@ -95,6 +95,10 @@ ZMQ::Declare::Application - A ZMQ::Declare Application object
 
 =head1 DESCRIPTION
 
+A C<ZMQ::Declare::Application> object represents any number of 0MQ devices
+that share the same 0MQ threading context. As such, an application conceptually
+maps to a single process.
+
 =head1 PROPERTIES
 
 These are accessible with normal mutator methods.
@@ -102,6 +106,8 @@ These are accessible with normal mutator methods.
 =head2 name
 
 The name of the application. This is required to be unique in a ZDCF file.
+
+Read-only.
 
 =head2 spec
 
@@ -115,8 +121,35 @@ Read-only.
 
 Constructor taking named arguments (see properties above).
 Typically, you should obtain your C<ZMQ::Declare::Application>
-objects by calling C<app($application_name)> on a L<ZMQ::Declare::ZDCF>
-object instead of using C<new()>.
+objects by calling C<application($application_name)> on a
+L<ZMQ::Declare::ZDCF> object instead of using C<new()>.
+
+=head2 device
+
+Given a device name, creates a L<ZMQ::Declare::Device> object from
+the information stored in the application and returns that object.
+
+This C<ZMQ::Declare::Device> object is what you can use to actually
+implement 0MQ devices that are configured through ZDCF.
+Note that creating a C<ZMQ::Declare::Device> object does B<not>
+create any 0MQ contexts, sockets, or connections yet, you need
+to call C<make_runtime()> or C<run()> on the device for that.
+
+=head2 device_names
+
+Returns a list (not a reference) of device names that are known to
+the application.
+
+=head2 get_context
+
+Creates a L<ZeroMQ::Context> object from the application and returns
+it. In other words, this creates the actual threading context of
+0MQ. Generally, this is called indirectly by using the C<device>
+method to obtain a C<ZMQ::Declare::Device> object and then
+calling the C<run> or C<make_runtime> methods on that.
+
+Repeated calls to C<get_context> will return the same threading
+context object.
 
 =head1 SEE ALSO
 

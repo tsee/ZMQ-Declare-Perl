@@ -71,6 +71,7 @@ sub application_names {
 sub application {
   my $self = shift;
   my $name = shift;
+  $name = "" if not defined $name; # more-or-less compat with pre v1 ZDCF spec
 
   my $apps = $self->tree->{apps} || {};
   Carp::croak("Invalid application '$name'")
@@ -117,6 +118,9 @@ ZMQ::Declare::ZDCF - Object representing ZeroMQ Device Configuration (File)
     encoder => ZMQ::Declare::ZDCF::Encoder::YourFormat->new,
     tree => $zdcf_file_with_different_encoding
   );
+  
+  my $app = $zdcf->application("event_broker");
+  # ...
 
 =head1 DESCRIPTION
 
@@ -156,19 +160,20 @@ read from the file will be decoded and validated as per the above.
 
 =back
 
-=head2 device
+=head2 application
 
-Given a device name, creates a L<ZMQ::Declare::Device> object from
-the information stored in the ZDCF tree and returns that object.
+Given an application name, creates a L<ZMQ::Declare::Application>
+object from the information stored in the ZDCF tree and returns that object.
 
-This C<ZMQ::Declare::Device> object is what you can use to actually
-implement 0MQ devices that are configured through ZDCF.
-Note that creating a C<ZMQ::Declare::Device> object does B<not>
+This C<ZMQ::Declare::Application> object contains one 0MQ threading
+context and one or many 0MQ device objects. Those devise are what you can
+use to actually implement 0MQ devices that are configured through ZDCF.
+Note that creating a C<ZMQ::Declare::Application> object does B<not>
 create any 0MQ contexts, sockets, or connections yet.
 
-=head2 device_names
+=head2 application_names
 
-Returns a list (not a reference) of device names that are known to
+Returns a list (not a reference) of application names that are known to
 the ZDCF tree.
 
 =head2 encode
@@ -180,23 +185,11 @@ returns a scalar reference to the result.
 
 Writes the ZDCF content to the given file name.
 
-=head2 get_context
-
-Creates a L<ZeroMQ::Context> object from the ZDCF tree and returns
-it. In other words, this creates the actual threading context of
-0MQ. Generally, this is called indirectly by using the C<device>
-method to obtain a C<ZMQ::Declare::Device> object and then
-calling the C<run> or C<make_runtime> methods on that.
-
-=head2 make_device_sockets
-
-I<Used by other ZMQ::Declare classes, but considered internal.>
-
 =head1 SEE ALSO
 
 The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
 
-L<ZMQ::Declare>
+L<ZMQ::Declare>, L<ZMQ::Declare::Application>, C<ZMQ::Declare::Device>
 
 L<ZeroMQ>
 
