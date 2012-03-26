@@ -38,7 +38,7 @@ sub server_loop {
   
   while (1) {
     # Get values that will fool the boss
-    my $zipcode     = within(100);
+    my $zipcode     = within(100000);
     my $temperature = within(215) - 80;
     my $relhumidity = within(50) + 10;
 
