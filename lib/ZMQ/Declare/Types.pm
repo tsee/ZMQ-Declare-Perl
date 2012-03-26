@@ -55,8 +55,8 @@ my %zdcf_socket_types = (
 #    => via {$socket_types{$_}};
 
 sub zdcf_sock_type_to_number {
-  my $class = shift;
-  return $zdcf_socket_types{shift()};
+  my ($class, $type) = @_;
+  return $zdcf_socket_types{$type};
 }
 
 enum 'ZMQDeclareSocketConnectType' => [qw(connect bind)];

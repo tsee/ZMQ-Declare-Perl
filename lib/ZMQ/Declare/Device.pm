@@ -128,7 +128,7 @@ sub _make_device_sockets {
   my @socks;
   my $sockets = $dev_spec->{sockets} || {};
   foreach my $sockname (keys %$sockets) {
-    my $sock_spec = $dev_spec->{$sockname};
+    my $sock_spec = $sockets->{$sockname};
     my $socket = $self->_setup_socket($cxt, $sock_spec);
     push @socks, [$socket, $sock_spec];
     $dev_runtime->sockets->{$sockname} = $socket;
