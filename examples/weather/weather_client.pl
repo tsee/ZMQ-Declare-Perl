@@ -16,7 +16,7 @@ use warnings;
 use ZeroMQ qw/:all/;
 use ZMQ::Declare;
 my $spec = ZMQ::Declare::ZDCF->new(tree => 'weather.zdcf');
-my $device = $spec->device('client');
+my $device = $spec->application->device('client');
 
 print "Collecting updates from weather server...\n";
 
