@@ -69,7 +69,7 @@ sub get_context {
   return $cxt if defined $cxt;
 
   my $app_tree = $self->_app_tree_ref;
-  my $context_struct = $tree->{context};
+  my $context_struct = $app_tree->{context};
   my $iothreads = defined $context_struct ? $context_struct->{iothreads} : 1;
   $cxt = ZeroMQ::Context->new($iothreads);
   $self->_runtime_context($cxt);
