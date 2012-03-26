@@ -40,6 +40,10 @@ has '_runtime_context' => (
 
 sub device {
   my ($self, $name) = @_;
+
+  Carp::croak("Need device name")
+    if not defined $name;
+
   my $app_spec = $self->_app_tree_ref;
   my $dev_spec = $app_spec->{devices}{$name};
   if (not defined $dev_spec) {
