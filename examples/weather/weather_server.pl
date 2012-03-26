@@ -24,7 +24,7 @@ sub within {
 
 # Prepare our context and publisher
 my $spec = ZMQ::Declare::ZDCF->new(tree => 'weather.zdcf');
-my $device = $spec->application->device('server');
+my $device = $spec->application("weather")->device('server');
 
 $| = 1;
 print "Serving...\n";

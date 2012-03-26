@@ -1,21 +1,26 @@
 {
-  "context": {
-    "iothreads": 1
-  },
-
-  "client":{
-    "type": "wclient",
-    "subscriber":{
-      "type": "sub",
-      "connect": "tcp://localhost:5556"
-    }
-  },
-
-  "server":{
-    "type": "wserver",
-    "publisher":{
-      "type": "pub",
-      "bind": "tcp://*:5556"
+  "version": 1.0,
+  "apps":{
+    "weather":{
+      "context": { "iothreads": 1 },
+      "devices":{
+        "client":{
+          "sockets":{
+            "subscriber":{
+              "type": "sub",
+              "connect": "tcp://localhost:5556"
+            }
+          }
+        },
+        "server":{
+          "sockets":{
+            "publisher":{
+              "type": "pub",
+              "bind": "tcp://*:5556"
+            }
+          }
+        }
+      }
     }
   }
 }
