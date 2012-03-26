@@ -29,7 +29,7 @@ has '_app_tree_ref' => (
 );
 sub _fetch_app_tree_ref {
   my $self = shift;
-  return $self->spec->{apps}{ $self->name };
+  return $self->spec->tree->{apps}{ $self->name };
 }
 
 has '_runtime_context' => (
