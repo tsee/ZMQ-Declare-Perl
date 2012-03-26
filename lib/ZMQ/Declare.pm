@@ -55,10 +55,14 @@ ZMQ::Declare - Declarative 0MQ Infrastructure
   # and then hand control to your main loop with everything set up!
   $worker->run(nforks => 20);
 
+FIXME update SYNOPSIS to reflect application layer
+
 Actual, runnable examples can be found in the F<examples/>
 subdirectory of the C<ZMQ::Declare> distribution.
 
 =head1 DESCRIPTION
+
+FIXME update DESCRIPTION to reflect application layer
 
 B<This is experimental software. Interfaces and implementation are subject to
 change. If you are interested in using this in production, please get in touch
