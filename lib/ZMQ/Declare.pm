@@ -12,6 +12,7 @@ require ZMQ::Declare::Constants;
 require ZMQ::Declare::Types;
 
 require ZMQ::Declare::ZDCF;
+require ZMQ::Declare::Application;
 require ZMQ::Declare::Device;
 
 require Exporter;
@@ -114,7 +115,10 @@ For details on the ZDCF format, please refer to L<ZMQ::Declare::ZDCF>.
 
 =head1 SEE ALSO
 
-L<ZMQ::Declare::ZDCF>
+L<ZMQ::Declare::ZDCF>,
+L<ZMQ::Declare::Application>,
+L<ZMQ::Declare::Device>,
+L<ZMQ::Declare::Device::Runtime>
 
 L<ZeroMQ>
 
