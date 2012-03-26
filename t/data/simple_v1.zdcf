@@ -15,7 +15,7 @@
           }
         },
         "client": {
-          "type": "myweatherserverdevice",
+          "type": "myweatherclientdevice",
           "sockets":{
             "weather_info_subscriber": {
               "type": "SUB",
