@@ -28,11 +28,26 @@ has 'implementation' => (
   is => 'rw',
 );
 
-has 'spec' => (
+has 'application' => (
   is => 'ro',
-  isa => 'ZMQ::Declare::ZDCF',
+  isa => 'ZMQ::Declare::Application',
   required => 1,
+  handles => [qw(spec)],
 );
+
+has '_device_tree_ref' => (
+  is => 'rw',
+  isa => 'HashRef',
+  weak_ref => 1,
+  builder => "_fetch_device_tree_ref",
+  lazy => 1,
+);
+sub _fetch_device_tree_ref {
+  my $self = shift;
+  # FIXME strictly speaking, this breaks application encapsulation
+  return $self->application->_app_tree_ref->{devices}{ $self->name };
+}
+
 
 sub run {
   my $self = shift;
@@ -88,17 +103,78 @@ sub make_runtime {
   #       That wouldn't make a lot of sense anyway, since at least
   #       conceptually, one could have N runtime objects for the same
   #       Device.
-  my $rt = ZMQ::Declare::Device::Runtime->new(
-    device => $self,
-  );
+  my $rt = ZMQ::Declare::Device::Runtime->new(device => $self);
 
-  my $zdcf = $self->spec;
-  my $cxt = $zdcf->get_context();
+  my $app = $self->application;
+  my $cxt = $app->get_context();
+
   $rt->context($cxt);
-
-  $zdcf->make_device_sockets($rt);
+  $self->_make_device_sockets($rt);
 
   return $rt;
+}
+
+
+# creates the runtime sockets
+sub _make_device_sockets {
+  my $self = shift;
+  my $dev_runtime = shift;
+
+  my $dev_spec = $self->_device_tree_ref;
+  Carp::croak("Could not find ZDCF entry for device '".$dev_runtime->name."'")
+    if not defined $dev_spec or not ref($dev_spec) eq 'HASH';
+
+
+  my $cxt = $dev_runtime->context;
+  my @socks;
+  my $sockets = $dev_spec->{sockets} || {};
+  foreach my $sockname (keys %$sockets) {
+    my $sock_spec = $dev_spec->{$sockname};
+    my $socket = $self->_setup_socket($cxt, $sock_spec);
+    push @socks, [$socket, $sock_spec];
+    $dev_runtime->sockets->{$sockname} = $socket;
+  }
+
+  $self->_init_sockets(\@socks, "bind");
+  $self->_init_sockets(\@socks, "connect");
+
+  return();
+}
+
+sub _setup_socket {
+  my ($self, $cxt, $sock_spec) = @_;
+
+  my $type = $sock_spec->{type};
+  my $typenum = ZMQ::Declare::Types->zdcf_sock_type_to_number($type);
+  my $sock = $cxt->socket($typenum);
+
+  # FIXME figure out whether some of these options *must* be set after the connects
+  my $opt = $sock_spec->{option} || {};
+  foreach my $opt_name (keys %$opt) {
+    my $opt_num = ZMQ::Declare::Types->zdcf_settable_sockopt_type_to_number($opt_name);
+    $sock->setsockopt($opt_num, $opt->{$opt_name});
+  }
+
+  return $sock;
+}
+
+sub _init_sockets {
+  my ($self, $socks, $connecttype) = @_;
+
+  foreach my $sock_n_spec (@$socks) {
+    my ($sock, $spec) = @$sock_n_spec;
+    $self->_init_socket_conn($sock, $spec, $connecttype);
+  }
+}
+
+sub _init_socket_conn {
+  my ($self, $sock, $spec, $connecttype) = @_;
+
+  my $conn_spec = $spec->{$connecttype};
+  return if not $conn_spec;
+
+  my @endpoints = (ref($conn_spec) eq 'ARRAY' ? @$conn_spec : $conn_spec);
+  $sock->$connecttype($_) for @endpoints;
 }
 
 no Moose;

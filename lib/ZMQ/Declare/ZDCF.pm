@@ -21,21 +21,15 @@ has 'validator' => (
   default => sub {ZMQ::Declare::ZDCF::Validator->new},
 );
 
-has 'tree' => (
-  is => 'rw',
-  required => 1,
-);
-
 has 'encoder' => (
   is => 'rw',
   isa => 'ZMQ::Declare::ZDCF::Encoder',
   default => sub {ZMQ::Declare::ZDCF::Encoder::JSON->new},
 );
 
-has '_runtime_context' => (
+has 'tree' => (
   is => 'rw',
-  isa => 'ZeroMQ::Context',
-  weak_ref => 1,
+  required => 1,
 );
 
 sub BUILD {
@@ -69,112 +63,27 @@ sub BUILD {
   $self->tree($tree);
 }
 
-sub device_names {
+sub application_names {
   my $self = shift;
-
-  return grep $_ ne 'context', keys %{ $self->tree || {} };
+  return keys %{ $self->tree->{apps} || {} };
 }
 
-sub device {
+sub application {
   my $self = shift;
   my $name = shift;
 
-  my $device = $self->_build_device($name);
-  return $device;
-}
+  my $apps = $self->tree->{apps} || {};
+  Carp::croak("Invalid application '$name'")
+    if not exists $apps->{$name};
 
-sub _build_device {
-  my ($self, $name) = @_;
-
-  my $tree = $self->tree;
-  Carp::croak("Invalid device '$name'")
-    if $name eq 'context' or not exists $tree->{$name};
-
-  my $dev_spec = $tree->{$name};
-  my $typename = $dev_spec->{type};
+  my $app_spec = $apps->{$name};
+  my $typename = $app_spec->{type};
   $typename = '' if not defined $typename;
 
-  return ZMQ::Declare::Device->new(
+  return ZMQ::Declare::Application->new(
     name => $name,
     spec => $self,
-    typename => $typename,
   );
-}
-
-# runtime context
-sub get_context {
-  my ($self) = @_;
-  my $cxt = $self->_runtime_context;
-  return $cxt if defined $cxt;
-
-  my $tree = $self->tree;
-  my $context_str = $tree->{context};
-  my $iothreads = defined $context_str ? $context_str->{iothreads} : 1;
-  $cxt = ZeroMQ::Context->new($iothreads);
-  $self->_runtime_context($cxt);
-
-  return $cxt;
-}
-
-# runtime sockets
-sub make_device_sockets {
-  my $self = shift;
-  my $dev_runtime = shift;
-
-  my $tree = $self->tree;
-  my $dev_spec = $tree->{ $dev_runtime->name };
-  Carp::croak("Could not find ZDCF entry for device '".$dev_runtime->name."'")
-    if not defined $dev_spec or not ref($dev_spec) eq 'HASH';
-
-  my $cxt = $dev_runtime->context;
-  my @socks;
-  foreach my $sockname (grep $_ ne 'type', keys %$dev_spec) {
-    my $sock_spec = $dev_spec->{$sockname};
-    my $socket = $self->_setup_socket($cxt, $sock_spec);
-    push @socks, [$socket, $sock_spec];
-    $dev_runtime->sockets->{$sockname} = $socket;
-  }
-
-  $self->_init_sockets(\@socks, "bind");
-  $self->_init_sockets(\@socks, "connect");
-
-  return();
-}
-
-sub _setup_socket {
-  my ($self, $cxt, $sock_spec) = @_;
-
-  my $type = $sock_spec->{type};
-  my $typenum = ZMQ::Declare::Types->zdcf_sock_type_to_number($type);
-  my $sock = $cxt->socket($typenum);
-
-  # FIXME figure out whether some of these options *must* be set after the connects
-  my $opt = $sock_spec->{option} || {};
-  foreach my $opt_name (keys %$opt) {
-    my $opt_num = ZMQ::Declare::Types->zdcf_settable_sockopt_type_to_number($opt_name);
-    $sock->setsockopt($opt_num, $opt->{$opt_name});
-  }
-
-  return $sock;
-}
-
-sub _init_sockets {
-  my ($self, $socks, $connecttype) = @_;
-
-  foreach my $sock_n_spec (@$socks) {
-    my ($sock, $spec) = @$sock_n_spec;
-    $self->_init_socket_conn($sock, $spec, $connecttype);
-  }
-}
-
-sub _init_socket_conn {
-  my ($self, $sock, $spec, $connecttype) = @_;
-
-  my $conn_spec = $spec->{$connecttype};
-  return if not $conn_spec;
-
-  my @endpoints = (ref($conn_spec) eq 'ARRAY' ? @$conn_spec : $conn_spec);
-  $sock->$connecttype($_) for @endpoints;
 }
 
 sub encode {
