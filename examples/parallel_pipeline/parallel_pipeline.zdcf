@@ -1,29 +1,39 @@
 {
-  "ventilator":{
-    "type": "mypipeline_ventilator",
-    "sender":{
-      "type": "push",
-      "bind": "tcp://*:5557"
-    }
-  },
+  "version": 1.0,
+  "apps":{
+    "ppipe":{
+      "devices":{
+        "ventilator":{
+          "sockets":{
+            "sender":{
+              "type": "push",
+              "bind": "tcp://*:5557"
+            }
+          }
+        },
 
-  "worker":{
-    "type": "mypipeline_worker",
-    "input":{
-      "type":    "pull",
-      "connect": "tcp://localhost:5557"
-    },
-    "output":{
-      "type":    "push",
-      "connect": "tcp://localhost:5558"
-    }
-  },
+        "worker":{
+          "sockets":{
+            "input":{
+              "type":    "pull",
+              "connect": "tcp://localhost:5557"
+            },
+            "output":{
+              "type":    "push",
+              "connect": "tcp://localhost:5558"
+            }
+          }
+        },
 
-  "sink":{
-    "type": "mypipeline_sink",
-    "receiver":{
-      "type": "pull",
-      "bind": "tcp://*:5558"
+        "sink":{
+          "sockets":{
+            "receiver":{
+              "type": "pull",
+              "bind": "tcp://*:5558"
+            }
+          }
+        }
+      }
     }
   }
 }

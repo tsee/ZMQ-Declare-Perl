@@ -95,7 +95,7 @@ my %MainLoops = (
 );
 
 my $spec = ZMQ::Declare::ZDCF->new(tree => 'parallel_pipeline.zdcf');
-my $dev = $spec->application->device($Role);
+my $dev = $spec->application("ppipe")->device($Role);
 $dev->implementation($MainLoops{$Role});
 $dev->run(nforks => $NWorkers);
 

@@ -102,7 +102,7 @@ my %MainLoops = (
 );
 
 my $spec = ZMQ::Declare::ZDCF->new(tree => 'parallel_pipeline.zdcf');
-my $app = $spec->application;
+my $app = $spec->application("ppipe");
 my @threads;
 foreach my $role (qw(ventilator sink worker)) {
   my $dev = $app->device($role);
