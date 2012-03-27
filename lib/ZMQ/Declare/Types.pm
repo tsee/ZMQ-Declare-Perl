@@ -9,23 +9,6 @@ use Moose::Util::TypeConstraints;
 use JSON ();
 use ZeroMQ::Constants qw(:all);
 
-#my %socket_types = (
-#  ZMQ_PUB => ZMQ_PUB,
-#  ZMQ_SUB => ZMQ_SUB,
-#  ZMQ_PUSH => ZMQ_PUSH,
-#  ZMQ_PULL => ZMQ_PULL,
-#  ZMQ_UPSTREAM => ZMQ_UPSTREAM,
-#  ZMQ_DOWNSTREAM => ZMQ_DOWNSTREAM,
-#  ZMQ_REQ => ZMQ_REQ,
-#  ZMQ_REP => ZMQ_REP,
-#  ZMQ_PAIR => ZMQ_PAIR,
-#  ZMQ_XREQ => ZMQ_XREQ,
-#  ZMQ_XREP => ZMQ_XREP,
-#  ZMQ_XPUB => ZMQ_XPUB,
-#  ZMQ_XSUB => ZMQ_XSUB,
-#);
-
-
 my %zdcf_socket_types = (
   pub => ZMQ_PUB,
   sub => ZMQ_SUB,
@@ -43,16 +26,6 @@ my %zdcf_socket_types = (
   upstream => ZMQ_UPSTREAM,
   downstream => ZMQ_DOWNSTREAM,
 );
-
-# FIXME reverse is not good enough here
-#my %zdcf_numeric_socket_types = reverse %zdcf_socket_types;
-#enum 'ZMQDeclareZDCFSocketType' => [keys %zdcf_socket_types];
-#subtype 'ZMQDeclareNumericSocketType'
-#  => as 'Int'
-#  => where {exists $numeric_socket_types{$_}};
-#coerce 'ZMQDeclareNumericSocketType'
-#  => from 'Str'
-#    => via {$socket_types{$_}};
 
 sub zdcf_sock_type_to_number {
   my ($class, $type) = @_;
