@@ -41,8 +41,8 @@ has '_runtime_context' => (
 sub device {
   my ($self, $name) = @_;
 
-  Carp::croak("Need device name")
-    if not defined $name;
+  # For convenience: default to using application name for device if none provided
+  $name = $self->name if not defined $name;
 
   my $app_spec = $self->_app_tree_ref;
   my $dev_spec = $app_spec->{devices}{$name};
@@ -138,6 +138,11 @@ implement 0MQ devices that are configured through ZDCF.
 Note that creating a C<ZMQ::Declare::Device> object does B<not>
 create any 0MQ contexts, sockets, or connections yet, you need
 to call C<make_runtime()> or C<run()> on the device for that.
+
+As a convenience, the device name defaults to the application name
+if none is provided. This is to cater to the cases of simple
+applications that have only one device that needs not have a
+different name than the application itself.
 
 =head2 device_names
 
