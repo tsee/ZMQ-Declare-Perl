@@ -118,13 +118,16 @@ but prefer to write the parallelizable worker components in
 Perl for ease of development.
 
 For details on the ZDCF format, please refer to L<ZMQ::Declare::ZDCF>.
+For a domain specific language for defining ZDCF structures in pure Perl,
+see L<ZMQ::Declare::DSL>.
 
 =head1 SEE ALSO
 
 L<ZMQ::Declare::ZDCF>,
 L<ZMQ::Declare::Application>,
 L<ZMQ::Declare::Device>,
-L<ZMQ::Declare::Device::Runtime>
+L<ZMQ::Declare::Device::Runtime>,
+L<ZMQ::Declare::DSL>
 
 L<ZeroMQ>
 
