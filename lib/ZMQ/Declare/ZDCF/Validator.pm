@@ -270,7 +270,7 @@ The ZDCF RFC L<http://rfc.zeromq.org/spec:17>
 
 L<Data::Rx>, L<http://rx.codesimply.com/index.html>
 
-L<ZeroMQ>
+L<ZMQ>
 
 =head1 AUTHOR
 

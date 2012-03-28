@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '0.01';
 
-use ZeroMQ ();
+use ZMQ ();
 
 require ZMQ::Declare::Constants;
 require ZMQ::Declare::Types;
@@ -77,7 +77,7 @@ using 0MQ. For example, such a setup could be an entire event
 processing stack that has many different clients producing events,
 a broker, many event processing workers, and a result aggregator.
 
-Normally using the common Perl binding, L<ZeroMQ>, requires you to
+Normally using the common Perl binding, L<ZMQ>, requires you to
 explicitly write out the code to create 0MQ context and sockets, and
 to write the connect/bind logic for each socket. Since the use of
 0MQ commonly implies that multiple disjunct piece of code talk
@@ -129,7 +129,7 @@ L<ZMQ::Declare::Device>,
 L<ZMQ::Declare::Device::Runtime>,
 L<ZMQ::Declare::DSL>
 
-L<ZeroMQ>
+L<ZMQ> or its older sibling that will be phased out: L<ZeroMQ>
 
 =head1 AUTHOR
 

@@ -7,7 +7,7 @@ our $VERSION = '0.01';
 
 use Moose::Util::TypeConstraints;
 use JSON ();
-use ZeroMQ::Constants qw(:all);
+use ZMQ::Constants qw(:all);
 
 my %zdcf_socket_types = (
   pub => ZMQ_PUB,
@@ -68,7 +68,7 @@ ZMQ::Declare::Types - Type definitions for ZMQ::Declare
 
 =head1 SEE ALSO
 
-L<ZeroMQ>
+L<ZMQ>
 
 =head1 AUTHOR
 

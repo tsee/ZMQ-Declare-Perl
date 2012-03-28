@@ -8,7 +8,7 @@ use ZMQ::Declare::ZDCF::Validator;
 use ZMQ::Declare::ZDCF::Encoder;
 use ZMQ::Declare::ZDCF::Encoder::JSON;
 
-use ZeroMQ qw(:all);
+use ZMQ qw(:all);
 
 use ZMQ::Declare::Constants qw(:all);
 use ZMQ::Declare::Types;
@@ -191,7 +191,7 @@ The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
 
 L<ZMQ::Declare>, L<ZMQ::Declare::Application>, C<ZMQ::Declare::Device>
 
-L<ZeroMQ>
+L<ZMQ>
 
 =head1 METHOD-ACCESSIBLE INSTANCE PROPERTIES
 
