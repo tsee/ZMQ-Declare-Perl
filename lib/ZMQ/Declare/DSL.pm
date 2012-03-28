@@ -7,7 +7,7 @@ use warnings;
 our $VERSION = '0.01';
 
 use Carp ();
-use ZMQ ();
+use ZeroMQ ();
 
 use ZMQ::Declare;
 
@@ -312,7 +312,7 @@ times within a socket.
 
 L<ZMQ::Declare>
 
-L<ZMQ>
+L<ZeroMQ>
 
 =head1 AUTHOR
 

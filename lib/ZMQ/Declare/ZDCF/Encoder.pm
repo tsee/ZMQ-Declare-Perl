@@ -50,7 +50,7 @@ Decodes the string and returns a ZDCF tree (unvalidated).
 
 The ZDCF RFC L<http://rfc.zeromq.org/spec:5>
 
-L<ZMQ>
+L<ZeroMQ>
 
 =head1 AUTHOR
 

@@ -6,7 +6,7 @@ WriteMakefile(
     NAME              => 'ZMQ::Declare',
     VERSION_FROM      => 'lib/ZMQ/Declare.pm', # finds $VERSION
     PREREQ_PM         => {
-      'ZMQ' => '0',
+      'ZeroMQ' => '0',
       'Scalar::Util' => '0',
       'Moose' => '0',
       'Carp' => '0',

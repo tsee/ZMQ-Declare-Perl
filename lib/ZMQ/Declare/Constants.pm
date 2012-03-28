@@ -30,7 +30,7 @@ ZMQ::Declare::Constants - Constants you can import
 
 L<ZMQ::Declare>
 
-L<ZMQ>
+L<ZeroMQ>
 
 =head1 AUTHOR
 

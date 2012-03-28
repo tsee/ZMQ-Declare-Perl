@@ -6,7 +6,7 @@ use POSIX ":sys_wait_h";
 use Time::HiRes qw(sleep);
 use Scalar::Util ();
 use Carp ();
-use ZMQ qw(:all);
+use ZeroMQ qw(:all);
 
 use ZMQ::Declare;
 use ZMQ::Declare::Device::Runtime;
@@ -284,7 +284,7 @@ connections will be disconnected.
 
 =head1 SEE ALSO
 
-L<ZMQ>
+L<ZeroMQ>
 
 L<ZMQ::Declare>,
 L<ZMQ::Declare::Device::Runtime>,

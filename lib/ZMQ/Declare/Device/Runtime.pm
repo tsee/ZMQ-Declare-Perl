@@ -4,7 +4,7 @@ use Moose;
 
 use Scalar::Util ();
 use Carp ();
-use ZMQ qw(:all);
+use ZeroMQ qw(:all);
 
 use ZMQ::Declare;
 use ZMQ::Declare::Device;
@@ -19,13 +19,13 @@ has 'device' => (
 
 has 'sockets' => (
   is => 'ro',
-  isa => 'HashRef[ZMQ::Socket]',
+  isa => 'HashRef[ZeroMQ::Socket]',
   default => sub {{}},
 );
 
 has 'context' => (
   is => 'rw',
-  isa => 'ZMQ::Context',
+  isa => 'ZeroMQ::Context',
 );
 
 sub get_socket_by_name {
@@ -91,7 +91,7 @@ The threading context for this runtime.
 
 =head2 sockets
 
-A hashref of socket names to L<ZMQ::Socket> objects.
+A hashref of socket names to L<ZeroMQ::Socket> objects.
 See also: C<get_socket_by_name()>
 
 =head1 METHODS
@@ -110,7 +110,7 @@ that name or throws and exception if it doesn't exist.
 
 L<ZMQ::Declare>, L<ZMQ::Declare::Device>
 
-L<ZMQ>
+L<ZeroMQ>
 
 =head1 AUTHOR
 

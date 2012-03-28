@@ -3,7 +3,7 @@ use 5.008001;
 use Moose;
 
 use Carp ();
-use ZMQ qw(:all);
+use ZeroMQ qw(:all);
 
 use ZMQ::Declare;
 use ZMQ::Declare::ZDCF;
@@ -34,7 +34,7 @@ sub _fetch_app_tree_ref {
 
 has '_runtime_context' => (
   is => 'rw',
-  isa => 'ZMQ::Context',
+  isa => 'ZeroMQ::Context',
   weak_ref => 1,
 );
 
@@ -75,7 +75,7 @@ sub get_context {
   my $app_tree = $self->_app_tree_ref;
   my $context_struct = $app_tree->{context};
   my $iothreads = defined $context_struct ? $context_struct->{iothreads} : 1;
-  $cxt = ZMQ::Context->new($iothreads);
+  $cxt = ZeroMQ::Context->new($iothreads);
   $self->_runtime_context($cxt);
 
   return $cxt;
@@ -151,7 +151,7 @@ the application.
 
 =head2 get_context
 
-Creates a L<ZMQ::Context> object from the application and returns
+Creates a L<ZeroMQ::Context> object from the application and returns
 it. In other words, this creates the actual threading context of
 0MQ. Generally, this is called indirectly by using the C<device>
 method to obtain a C<ZMQ::Declare::Device> object and then
@@ -162,7 +162,7 @@ context object.
 
 =head1 SEE ALSO
 
-L<ZMQ>
+L<ZeroMQ>
 
 L<ZMQ::Declare::ZDCF>, L<ZMQ::Declare::Device>
 
