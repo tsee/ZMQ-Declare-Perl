@@ -86,7 +86,7 @@ sub context(&) {
 }
 
 sub iothreads($) {
-  _check_scope('iothreads');
+  _check_scope('context');
   $Context->{iothreads} = $_[0];
 }
 
