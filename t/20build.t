@@ -99,5 +99,23 @@ sub make_zdcf {
   my $zdcf = ZMQ::Declare::ZDCF->new(tree => $testzdcf);
   isa_ok($zdcf, "ZMQ::Declare::ZDCF");
 
+  # Try a encoder roundtrip:
+  my @encoders = qw(JSON DumpEval Storable);
+
+  foreach my $encoder (@encoders) {
+    my $class = "ZMQ::Declare::ZDCF::Encoder::$encoder";
+    eval "use $class; 1"
+      or die "Cannot load class '$class'";
+    my $obj = new_ok($class);
+    $zdcf->encoder($obj);
+    my $out = $zdcf->encode;
+    is(ref($out), 'SCALAR', "$encoder: encoded to scalar ref");
+    ok(!ref($$out), "$encoder: encoded to scalar ref to string");
+    my $back = $obj->decode($out);
+    is_deeply($back, $zdcf->tree, "$encoder: roundtrip");
+    my $zback = ZMQ::Declare::ZDCF->new(tree => $out, encoder => $obj);
+    is_deeply($zback->tree, $zdcf->tree, "$encoder: roundtrip (2)");
+  }
+
   return $zdcf;
 }

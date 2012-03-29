@@ -3,14 +3,42 @@ use warnings;
 use Test::More;
 
 use ZMQ::Declare::ZDCF::Encoder::JSON;
+use ZMQ::Declare::ZDCF::Encoder::DumpEval;
+use ZMQ::Declare::ZDCF::Encoder::Storable;
 
-my $enc = ZMQ::Declare::ZDCF::Encoder::JSON->new;
-isa_ok($enc, "ZMQ::Declare::ZDCF::Encoder::JSON");
+my $test_structures = {
+  empty => {},
+  version => {version => 1.0},
+  more => {
+    version => 1.0,
+    apps => {
+      foo => {
+        context => {iothreads => 1},
+        devices => {
+          foo => {
+            sockets => {
+              foo => {type => 'sub', bind => [qw(a b c)]},
+            },
+          }
+        },
+      },
+    },
+  },
+};
 
-my $empty = $enc->decode(\'{}');
-is_deeply($empty, {});
+my @encoders = qw(JSON DumpEval Storable);
 
-my $empty_json = $enc->encode({});
-ok($$empty_json =~ /^\s*\{\}\s*$/s);
+foreach my $encoder (@encoders) {
+  my $class = "ZMQ::Declare::ZDCF::Encoder::$encoder";
+  my $obj = new_ok($class);
+  foreach my $str_name (keys %$test_structures) {
+    my $structure = $test_structures->{$str_name};
+    my $out = $obj->encode($structure);
+    is(ref($out), 'SCALAR', "$encoder: $str_name encoded to scalar ref");
+    ok(!ref($$out), "$encoder: $str_name encoded to scalar ref to string");
+    my $back = $obj->decode($out);
+    is_deeply($back, $structure, "$encoder: $str_name roundtrip");
+  }
+}
 
 done_testing();
