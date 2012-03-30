@@ -66,6 +66,10 @@ B<This is experimental software. Interfaces and implementation are subject to
 change. If you are interested in using this in production, please get in touch
 to gauge the current state of stability.>
 
+B<One guaranteed user-visible change will be that the underlying libzmq
+wrapper will be switched from ZeroMQ.pm to ZMQ.pm (with ZMQ::LibZMQ2 or 3 as backend)
+when ZMQ.pm becomes stable.>
+
 0MQ is a light-weight messaging library built on TCP.
 
 The Perl module C<ZMQ::Declare> aims to provide a declarative and/or
