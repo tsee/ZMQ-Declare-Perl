@@ -1,7 +1,6 @@
 package ZMQ::Declare::ZDCF::Encoder;
 use 5.008001;
 use Moose;
-our $VERSION = '0.01';
 
 sub encode {
   die "encode() not implemented in base class";

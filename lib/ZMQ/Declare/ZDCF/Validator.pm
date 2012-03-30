@@ -1,7 +1,6 @@
 package ZMQ::Declare::ZDCF::Validator;
 use 5.008001;
 use Moose;
-our $VERSION = '0.01';
 
 use Data::Rx;
 use Clone ();

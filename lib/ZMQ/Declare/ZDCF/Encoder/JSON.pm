@@ -1,7 +1,6 @@
 package ZMQ::Declare::ZDCF::Encoder::JSON;
 use 5.008001;
 use Moose;
-our $VERSION = '0.01';
 
 use parent 'ZMQ::Declare::ZDCF::Encoder';
 
