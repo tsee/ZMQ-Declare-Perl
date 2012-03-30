@@ -19,3 +19,4 @@
 t/XS*.c
 t/XS*.o
 t/XS*.so
+ZMQ-Declare-*/
