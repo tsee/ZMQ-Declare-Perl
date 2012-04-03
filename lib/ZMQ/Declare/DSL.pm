@@ -96,6 +96,10 @@ sub device(&) {
   $_[0]->();
 
   my $name = delete $Device->{name};
+  if (not defined $name) {
+    $name = $App->{name};
+  }
+
   Carp::croak("Missing device name!") if not defined $name;
   $App->{devices}{$name} = $Device;
 }
@@ -270,8 +274,9 @@ This is the only property that is currently valid in a C<context>.
 Defines a single device within an app. Can occur zero or more times
 in each app. Not valid outside of an app definition or within its substructures.
 
-Requires at least a name property and can contain zero or more sockets. May
-have a type property.
+Can contain zero or more sockets. May have a type and a name property.
+The name defaults to the app name, but that requires that the app name
+declaration appears before the device declaration.
 
 =head2 sock
 
