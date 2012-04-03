@@ -43,7 +43,7 @@ SCOPE: {
       map {
         { type => '//str', value => $_ },
         { type => '//str', value => uc($_) }
-      } qw(sub pub req rep xreq xrep push pull pair)
+      } qw(sub pub req rep xreq xrep push pull pair router dealer)
     ]
   };
   my $socket_schema = {

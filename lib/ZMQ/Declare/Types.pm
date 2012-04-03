@@ -17,8 +17,8 @@ my %zdcf_socket_types = (
   pair => ZMQ_PAIR,
   xreq => ZMQ_XREQ,
   xrep => ZMQ_XREP,
-  xpub => ZMQ_XPUB,
-  xsub => ZMQ_XSUB,
+  router => ZMQ_XREP, # TODO rename constants?
+  dealer => ZMQ_XREQ, # TODO rename constants?
 
   # not official, just aliases
   upstream => ZMQ_UPSTREAM,
