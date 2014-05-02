@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use File::Spec;
 
 use ZMQ::Declare::ZDCF::Validator;
 use Clone ();
